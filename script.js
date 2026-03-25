@@ -28,9 +28,30 @@ let currentPromptState = null;
 const themeStorageKey = "prompt-generator-theme";
 const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
+function readStoredTheme() {
+  try {
+    return window.localStorage.getItem(themeStorageKey);
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeStoredTheme(theme) {
+  try {
+    window.localStorage.setItem(themeStorageKey, theme);
+  } catch (error) {
+    // Ignore storage failures in restricted browsing contexts.
+  }
+}
+
 function applyTheme(theme) {
   const resolvedTheme = theme === "dark" ? "dark" : "light";
   document.body.dataset.theme = resolvedTheme;
+
+  if (!themeToggleButton) {
+    return;
+  }
+
   themeToggleButton.textContent = resolvedTheme === "dark" ? "Light" : "Dark";
   themeToggleButton.setAttribute(
     "aria-label",
@@ -45,7 +66,7 @@ function applyTheme(theme) {
 }
 
 function getPreferredTheme() {
-  const storedTheme = window.localStorage.getItem(themeStorageKey);
+  const storedTheme = readStoredTheme();
   if (storedTheme === "light" || storedTheme === "dark") {
     return storedTheme;
   }
@@ -56,11 +77,11 @@ function getPreferredTheme() {
 function toggleTheme() {
   const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
   applyTheme(nextTheme);
-  window.localStorage.setItem(themeStorageKey, nextTheme);
+  writeStoredTheme(nextTheme);
 }
 
 function syncThemeWithSystem(event) {
-  const storedTheme = window.localStorage.getItem(themeStorageKey);
+  const storedTheme = readStoredTheme();
   if (storedTheme === "light" || storedTheme === "dark") {
     return;
   }
@@ -2267,7 +2288,9 @@ async function copyPrompt() {
 generateButton.addEventListener("click", generatePrompt);
 angleVariantButton.addEventListener("click", createAngleVariant);
 copyButton.addEventListener("click", copyPrompt);
-themeToggleButton.addEventListener("click", toggleTheme);
+if (themeToggleButton) {
+  themeToggleButton.addEventListener("click", toggleTheme);
+}
 editScene.addEventListener("input", syncPromptFromJapaneseEditors);
 editScene.addEventListener("change", syncPromptFromJapaneseEditors);
 editLight.addEventListener("input", syncPromptFromJapaneseEditors);
@@ -2282,5 +2305,9 @@ editDetails.addEventListener("input", syncPromptFromJapaneseEditors);
 editDetails.addEventListener("change", syncPromptFromJapaneseEditors);
 
 applyTheme(getPreferredTheme());
-prefersDarkScheme.addEventListener("change", syncThemeWithSystem);
+if (typeof prefersDarkScheme.addEventListener === "function") {
+  prefersDarkScheme.addEventListener("change", syncThemeWithSystem);
+} else if (typeof prefersDarkScheme.addListener === "function") {
+  prefersDarkScheme.addListener(syncThemeWithSystem);
+}
 generatePrompt();
