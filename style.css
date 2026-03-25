@@ -1,6 +1,7 @@
 :root {
   --bg: #f4efe7;
   --bg-accent: #e6dccd;
+  --bg-glow: rgba(255, 255, 255, 0.7);
   --panel: rgba(255, 250, 242, 0.86);
   --line: #d4c3ae;
   --text: #2f241b;
@@ -8,7 +9,29 @@
   --accent: #b85c38;
   --accent-dark: #964629;
   --secondary: #efe2d4;
+  --surface: #fffdf9;
+  --surface-soft: rgba(255, 255, 255, 0.55);
+  --highlight: rgba(184, 92, 56, 0.08);
   --shadow: rgba(86, 58, 36, 0.15);
+  color-scheme: light;
+}
+
+body[data-theme="dark"] {
+  --bg: #15110e;
+  --bg-accent: #221913;
+  --bg-glow: rgba(255, 211, 177, 0.08);
+  --panel: rgba(31, 24, 20, 0.88);
+  --line: #4e3b31;
+  --text: #f3e8dc;
+  --muted: #cbb6a2;
+  --accent: #f29a67;
+  --accent-dark: #ffb287;
+  --secondary: #2b211b;
+  --surface: #1c1511;
+  --surface-soft: rgba(255, 245, 234, 0.05);
+  --highlight: rgba(242, 154, 103, 0.16);
+  --shadow: rgba(0, 0, 0, 0.34);
+  color-scheme: dark;
 }
 
 * {
@@ -21,7 +44,7 @@ body {
   font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 28%),
+    radial-gradient(circle at top left, var(--bg-glow), transparent 28%),
     linear-gradient(145deg, var(--bg), var(--bg-accent));
 }
 
@@ -47,6 +70,13 @@ body {
 .panel,
 .tips {
   padding: 28px;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .controls {
@@ -112,7 +142,7 @@ select {
   width: 100%;
   padding: 12px 14px;
   color: var(--text);
-  background: #fffdf9;
+  background: var(--surface);
   border-color: var(--line);
 }
 
@@ -169,7 +199,7 @@ select {
   resize: vertical;
   line-height: 1.7;
   color: var(--text);
-  background: #fffdf9;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
 }
@@ -201,6 +231,10 @@ button.secondary {
   border-color: var(--line);
 }
 
+.theme-toggle {
+  min-width: 88px;
+}
+
 .prompt-output {
   width: 100%;
   min-height: 220px;
@@ -208,7 +242,7 @@ button.secondary {
   resize: vertical;
   line-height: 1.7;
   color: var(--text);
-  background: #fffdf9;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 18px;
   margin-bottom: 18px;
@@ -230,7 +264,7 @@ button.secondary {
 .prompt-output-rich .scene-line {
   color: var(--accent-dark);
   font-weight: 700;
-  background: rgba(184, 92, 56, 0.08);
+  background: var(--highlight);
   padding: 8px 10px;
   border-radius: 12px;
 }
@@ -244,7 +278,7 @@ button.secondary {
 
 .meta div {
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--surface-soft);
   border: 1px solid var(--line);
   border-radius: 16px;
 }
@@ -279,6 +313,11 @@ dd {
     grid-template-columns: 1fr;
   }
 
+  .hero-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .meta {
     grid-template-columns: 1fr;
   }
@@ -295,6 +334,10 @@ dd {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .theme-toggle {
+    min-width: 0;
   }
 }
 

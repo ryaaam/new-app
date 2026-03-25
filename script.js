@@ -3,6 +3,7 @@ const layoutSelect = document.getElementById("layout-select");
 const categorySelect = document.getElementById("category-select");
 const styleSelect = document.getElementById("style-select");
 const focusSelect = document.getElementById("focus-select");
+const themeToggleButton = document.getElementById("theme-toggle-button");
 const generateButton = document.getElementById("generate-button");
 const angleVariantButton = document.getElementById("angle-variant-button");
 const copyButton = document.getElementById("copy-button");
@@ -24,6 +25,48 @@ const metaAngle = document.getElementById("meta-angle");
 const metaProps = document.getElementById("meta-props");
 
 let currentPromptState = null;
+const themeStorageKey = "prompt-generator-theme";
+const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+function applyTheme(theme) {
+  const resolvedTheme = theme === "dark" ? "dark" : "light";
+  document.body.dataset.theme = resolvedTheme;
+  themeToggleButton.textContent = resolvedTheme === "dark" ? "Light" : "Dark";
+  themeToggleButton.setAttribute(
+    "aria-label",
+    resolvedTheme === "dark"
+      ? "ライトモードに切り替え"
+      : "ダークモードに切り替え",
+  );
+  themeToggleButton.setAttribute(
+    "aria-pressed",
+    String(resolvedTheme === "dark"),
+  );
+}
+
+function getPreferredTheme() {
+  const storedTheme = window.localStorage.getItem(themeStorageKey);
+  if (storedTheme === "light" || storedTheme === "dark") {
+    return storedTheme;
+  }
+
+  return prefersDarkScheme.matches ? "dark" : "light";
+}
+
+function toggleTheme() {
+  const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+  window.localStorage.setItem(themeStorageKey, nextTheme);
+}
+
+function syncThemeWithSystem(event) {
+  const storedTheme = window.localStorage.getItem(themeStorageKey);
+  if (storedTheme === "light" || storedTheme === "dark") {
+    return;
+  }
+
+  applyTheme(event.matches ? "dark" : "light");
+}
 
 const styles = {
   clean: {
@@ -2224,6 +2267,7 @@ async function copyPrompt() {
 generateButton.addEventListener("click", generatePrompt);
 angleVariantButton.addEventListener("click", createAngleVariant);
 copyButton.addEventListener("click", copyPrompt);
+themeToggleButton.addEventListener("click", toggleTheme);
 editScene.addEventListener("input", syncPromptFromJapaneseEditors);
 editScene.addEventListener("change", syncPromptFromJapaneseEditors);
 editLight.addEventListener("input", syncPromptFromJapaneseEditors);
@@ -2237,4 +2281,6 @@ editMood.addEventListener("change", syncPromptFromJapaneseEditors);
 editDetails.addEventListener("input", syncPromptFromJapaneseEditors);
 editDetails.addEventListener("change", syncPromptFromJapaneseEditors);
 
+applyTheme(getPreferredTheme());
+prefersDarkScheme.addEventListener("change", syncThemeWithSystem);
 generatePrompt();
