@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>スマホケース 情景プロンプト生成</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <p class="eyebrow">Prompt Generator</p>
+        <h1>スマホケース用 情景プロンプト生成</h1>
+        <p class="intro">
+          商品イメージ生成で使いやすい、現実的な情景プロンプトをランダム生成します。
+          撮影場所、光、構図、小物を自然な範囲で組み合わせます。
+        </p>
+      </section>
+
+      <section class="controls" aria-label="生成条件">
+        <label class="control">
+          <span>ケース数</span>
+          <select id="case-count-select">
+            <option value="1">1個</option>
+            <option value="2">2個</option>
+            <option value="3">3個</option>
+            <option value="4">4個</option>
+            <option value="5">5個</option>
+            <option value="6">6個</option>
+            <option value="7">7個</option>
+          </select>
+        </label>
+
+        <label class="control">
+          <span>並べ方</span>
+          <select id="layout-select">
+            <option value="auto">自動</option>
+            <option value="row">横並び</option>
+            <option value="fan">少しずらして並べる</option>
+            <option value="stack">重なりをつける</option>
+            <option value="spread">間隔をあけて配置</option>
+          </select>
+        </label>
+
+        <label class="control">
+          <span>カテゴリ</span>
+          <select id="category-select">
+            <option value="all">すべて</option>
+            <option value="nature">自然</option>
+            <option value="sports">スポーツ</option>
+            <option value="travel">旅行</option>
+            <option value="indoor">屋内</option>
+            <option value="luxury">高級感</option>
+            <option value="cafe">カフェ</option>
+            <option value="daily">日常</option>
+            <option value="urban">都会</option>
+            <option value="work">仕事・作業</option>
+            <option value="outdoor">アウトドア</option>
+            <option value="seasonal">季節感</option>
+          </select>
+        </label>
+
+        <label class="control">
+          <span>写真の雰囲気</span>
+          <select id="style-select">
+            <option value="clean">すっきり整った写真</option>
+            <option value="lifestyle">日常っぽい写真</option>
+            <option value="premium">高級感のある写真</option>
+            <option value="casual">親しみやすい写真</option>
+          </select>
+        </label>
+
+        <label class="control">
+          <span>主役の見せ方</span>
+          <select id="focus-select">
+            <option value="product">商品単体寄り</option>
+            <option value="scene">情景寄り</option>
+            <option value="balanced">バランス</option>
+            <option value="camera-closeup">カメラ開口部のクローズアップ</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>生成されたプロンプト</h2>
+          <div class="actions">
+            <button id="generate-button" type="button">再生成</button>
+            <button id="angle-variant-button" type="button" class="secondary">
+              構図違い
+            </button>
+            <button id="copy-button" type="button" class="secondary">コピー</button>
+          </div>
+        </div>
+
+        <p class="output-label">英語プロンプト</p>
+        <textarea
+          id="prompt-output"
+          class="prompt-output"
+          readonly
+          aria-label="生成されたプロンプト"
+        ></textarea>
+
+        <div class="editor-header">
+          <p class="output-label">日本語編集</p>
+          <p class="editor-note">下の日本語を直すと、上の英語プロンプトにも反映されます。</p>
+        </div>
+        <div class="ja-editor">
+          <label class="editor-field">
+            <span>シーン</span>
+            <textarea id="edit-scene" class="editor-textarea" rows="2"></textarea>
+          </label>
+          <label class="editor-field">
+            <span>光</span>
+            <textarea id="edit-light" class="editor-textarea" rows="2"></textarea>
+          </label>
+          <label class="editor-field">
+            <span>構図</span>
+            <textarea id="edit-angle" class="editor-textarea" rows="2"></textarea>
+          </label>
+          <label class="editor-field">
+            <span>小物</span>
+            <textarea id="edit-props" class="editor-textarea" rows="3"></textarea>
+          </label>
+          <label class="editor-field">
+            <span>雰囲気</span>
+            <textarea id="edit-mood" class="editor-textarea" rows="2"></textarea>
+          </label>
+          <label class="editor-field editor-field-wide">
+            <span>追加条件</span>
+            <textarea id="edit-details" class="editor-textarea" rows="3"></textarea>
+          </label>
+        </div>
+
+        <p class="output-label">日本語訳プレビュー</p>
+        <div
+          id="prompt-output-ja"
+          class="prompt-output prompt-output-rich"
+          aria-label="生成された日本語訳"
+        ></div>
+
+        <dl class="meta">
+          <div>
+            <dt>カテゴリ</dt>
+            <dd id="meta-category">-</dd>
+          </div>
+          <div>
+            <dt>ケース数</dt>
+            <dd id="meta-case-count">-</dd>
+          </div>
+          <div>
+            <dt>並べ方</dt>
+            <dd id="meta-layout">-</dd>
+          </div>
+          <div>
+            <dt>場所</dt>
+            <dd id="meta-location">-</dd>
+          </div>
+          <div>
+            <dt>光</dt>
+            <dd id="meta-light">-</dd>
+          </div>
+          <div>
+            <dt>構図</dt>
+            <dd id="meta-angle">-</dd>
+          </div>
+          <div>
+            <dt>小物</dt>
+            <dd id="meta-props">-</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="tips">
+        <h2>特徴</h2>
+        <ul>
+          <li>ありえない設定を避け、商品画像に使いやすい現実的な情景だけを採用</li>
+          <li>スマホケースが主役になるよう、背景や小物は控えめに調整</li>
+          <li>そのまま画像生成プロンプトのたたき台として使える文章を出力</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
