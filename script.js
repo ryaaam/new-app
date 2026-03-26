@@ -2630,6 +2630,8 @@ copyButton.addEventListener("click", copyPrompt);
 if (themeToggleButton) {
   themeToggleButton.addEventListener("click", toggleTheme);
 }
+deviceTargetSelect.addEventListener("input", generatePrompt);
+deviceTargetSelect.addEventListener("change", generatePrompt);
 editScene.addEventListener("input", syncPromptFromJapaneseEditors);
 editScene.addEventListener("change", syncPromptFromJapaneseEditors);
 editLight.addEventListener("input", syncPromptFromJapaneseEditors);
