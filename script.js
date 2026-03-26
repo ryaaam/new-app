@@ -1774,7 +1774,7 @@ function generatePrompt() {
   const selectedLayout = layoutModes[layoutSelect.value];
   const availableScenarios = getFilteredScenarios();
   const scenario = sample(availableScenarios.length > 0 ? availableScenarios : scenarios)[0];
-  const props = sample(scenario.props, selectedStyle.propsCount);
+  const props = [];
   const extraDetails = sample(detailOptions, 3);
   const scenarioCategories = getScenarioCategories(scenario);
   const deviceTarget = deviceTargetSelect.value;
@@ -1836,7 +1836,7 @@ function generatePrompt() {
   metaLocation.textContent = scenario.location;
   metaLight.textContent = scenario.light;
   metaAngle.textContent = scenario.angle;
-  metaProps.textContent = props.join(", ");
+  metaProps.textContent = props.length > 0 ? props.join(", ") : "なし";
 }
 
 function fillJapaneseEditors(state) {
