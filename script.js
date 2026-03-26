@@ -1913,7 +1913,7 @@ function syncPromptFromJapaneseEditors() {
     `配置ルール: ${currentPromptState.layoutTextJa}。`,
     `見え方: ${currentPromptState.visibilityTextJa}。`,
     currentPromptState.deviceTargetJa
-      ? `端末向け: ${currentPromptState.deviceTargetJa}。`
+      ? `端末: ${currentPromptState.deviceTargetJa}。`
       : "",
     edited.scene ? `シーン: ${edited.scene}。` : "",
     edited.light ? `光: ${edited.light}。` : "",
