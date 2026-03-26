@@ -1948,6 +1948,10 @@ function createAngleVariant() {
   editAngle.value = currentPromptState.originalAngleJa;
   syncPromptFromJapaneseEditors();
   metaAngle.textContent = nextAngleEn;
+  angleVariantButton.textContent = "変更済み";
+  window.setTimeout(() => {
+    angleVariantButton.textContent = "構図違い";
+  }, 1200);
 }
 
 function translateEditedJapaneseToEnglish(field, editedText, state) {
