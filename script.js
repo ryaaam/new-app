@@ -1,6 +1,7 @@
 const caseCountSelect = document.getElementById("case-count-select");
 const layoutSelect = document.getElementById("layout-select");
 const categorySelect = document.getElementById("category-select");
+const deviceTargetSelect = document.getElementById("device-target-select");
 const styleSelect = document.getElementById("style-select");
 const focusSelect = document.getElementById("focus-select");
 const themeToggleButton = document.getElementById("theme-toggle-button");
@@ -18,6 +19,7 @@ const editDetails = document.getElementById("edit-details");
 
 const metaCategory = document.getElementById("meta-category");
 const metaCaseCount = document.getElementById("meta-case-count");
+const metaDeviceTarget = document.getElementById("meta-device-target");
 const metaLayout = document.getElementById("meta-layout");
 const metaLocation = document.getElementById("meta-location");
 const metaLight = document.getElementById("meta-light");
@@ -1517,6 +1519,54 @@ const categoryLabels = {
   playful: "遊びごころ",
 };
 
+const deviceTargetLabels = {
+  all: "指定なし",
+  iphone: "iPhone",
+  galaxy: "Galaxy",
+  pixel: "Pixel",
+  xperia: "Xperia",
+  aquos: "AQUOS",
+  arrows: "arrows",
+  oppo: "OPPO",
+  xiaomi: "Xiaomi",
+};
+
+const deviceTargetPromptText = {
+  all: { ja: "", en: "" },
+  iphone: {
+    ja: "iPhoneユーザーに自然に響く見せ方にする",
+    en: "Make the presentation feel naturally appealing to iPhone users",
+  },
+  galaxy: {
+    ja: "Galaxyユーザー向けに、モダンでシャープな印象にする",
+    en: "Make the presentation feel modern and sharp for Galaxy users",
+  },
+  pixel: {
+    ja: "Pixelユーザー向けに、クリーンで知的な雰囲気にする",
+    en: "Make the presentation feel clean and thoughtful for Pixel users",
+  },
+  xperia: {
+    ja: "Xperiaユーザー向けに、ミニマルで少し感度の高い印象にする",
+    en: "Make the presentation feel minimal and design-conscious for Xperia users",
+  },
+  aquos: {
+    ja: "AQUOSユーザー向けに、親しみやすく実用的でクリーンな印象にする",
+    en: "Make the presentation feel clean, practical, and approachable for AQUOS users",
+  },
+  arrows: {
+    ja: "arrowsユーザー向けに、安心感があり日常に馴染む見せ方にする",
+    en: "Make the presentation feel reliable and naturally suited to everyday use for arrows users",
+  },
+  oppo: {
+    ja: "OPPOユーザー向けに、軽やかでモダンな印象にする",
+    en: "Make the presentation feel light, modern, and stylish for OPPO users",
+  },
+  xiaomi: {
+    ja: "Xiaomiユーザー向けに、スマートでコスト感度の高い印象にする",
+    en: "Make the presentation feel smart, modern, and value-conscious for Xiaomi users",
+  },
+};
+
 const layoutModes = {
   auto: {
     en: "arrange the cases in a natural composition that suits the scene",
@@ -1693,7 +1743,15 @@ function sample(array, count = 1) {
 }
 
 function getScenarioCategories(scenario) {
-  const haystack = `${scenario.location} ${scenario.mood}`.toLowerCase();
+  const haystack = [
+    scenario.location,
+    scenario.light,
+    scenario.angle,
+    scenario.mood,
+    ...(scenario.props || []),
+  ]
+    .join(" ")
+    .toLowerCase();
   return Object.entries(categoryRules)
     .filter(([, keywords]) => keywords.some((keyword) => haystack.includes(keyword)))
     .map(([category]) => category);
@@ -1719,6 +1777,10 @@ function generatePrompt() {
   const props = sample(scenario.props, selectedStyle.propsCount);
   const extraDetails = sample(detailOptions, 3);
   const scenarioCategories = getScenarioCategories(scenario);
+  const deviceTarget = deviceTargetSelect.value;
+  const deviceTargetLabel = deviceTargetLabels[deviceTarget] || deviceTargetLabels.all;
+  const deviceTargetText =
+    deviceTargetPromptText[deviceTarget] || deviceTargetPromptText.all;
   const categoryText =
     categorySelect.value === "all"
       ? scenarioCategories.map((category) => categoryLabels[category]).join(", ") || categoryLabels.all
@@ -1740,6 +1802,9 @@ function generatePrompt() {
         : "Make sure all cases remain clearly distinguishable and each design stays visible.",
     introTextJa: `既存の参考画像をもとにした、${caseCount}個のスマホケースの商品イメージをリアルに生成する。`,
     introTextEn: `Create a realistic product image using ${caseCount === 1 ? "the provided reference image of one smartphone case" : `the provided reference images of ${caseCount} smartphone cases`}.`,
+    deviceTargetJa: deviceTargetText.ja,
+    deviceTargetEn: deviceTargetText.en,
+    deviceTargetLabel,
     scene: translateLocation(scenario.location, scenario.locationJa),
     light: translateLight(scenario.light, scenario.lightJa),
     angle: translateAngle(scenario.angle, scenario.angleJa),
@@ -1766,6 +1831,7 @@ function generatePrompt() {
   syncPromptFromJapaneseEditors();
   metaCategory.textContent = categoryText;
   metaCaseCount.textContent = `${caseCount}個`;
+  metaDeviceTarget.textContent = deviceTargetLabel;
   metaLayout.textContent = selectedLayout.label;
   metaLocation.textContent = scenario.location;
   metaLight.textContent = scenario.light;
@@ -1818,6 +1884,9 @@ function syncPromptFromJapaneseEditors() {
     "Composition requirements:",
     `- ${currentPromptState.layoutTextEn}.`,
     `- ${currentPromptState.focusEn}.`,
+    currentPromptState.deviceTargetEn
+      ? `- Target device audience: ${currentPromptState.deviceTargetEn}.`
+      : "",
     editedEn.angle ? `- Camera angle: ${editedEn.angle}.` : "",
     "",
     "Scene direction:",
@@ -1843,6 +1912,9 @@ function syncPromptFromJapaneseEditors() {
     "既存のスマホケースだけを、指定した情景の中に自然に配置する。",
     `配置ルール: ${currentPromptState.layoutTextJa}。`,
     `見え方: ${currentPromptState.visibilityTextJa}。`,
+    currentPromptState.deviceTargetJa
+      ? `端末向け: ${currentPromptState.deviceTargetJa}。`
+      : "",
     edited.scene ? `シーン: ${edited.scene}。` : "",
     edited.light ? `光: ${edited.light}。` : "",
     edited.angle ? `構図: ${edited.angle}。` : "",

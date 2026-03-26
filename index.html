@@ -76,6 +76,21 @@
         </label>
 
         <label class="control">
+          <span>端末ごとのユーザー向け</span>
+          <select id="device-target-select">
+            <option value="all">指定なし</option>
+            <option value="iphone">iPhone</option>
+            <option value="galaxy">Galaxy</option>
+            <option value="pixel">Pixel</option>
+            <option value="xperia">Xperia</option>
+            <option value="aquos">AQUOS</option>
+            <option value="arrows">arrows</option>
+            <option value="oppo">OPPO</option>
+            <option value="xiaomi">Xiaomi</option>
+          </select>
+        </label>
+
+        <label class="control">
           <span>写真の雰囲気</span>
           <select id="style-select">
             <option value="clean">すっきり整った写真</option>
@@ -164,6 +179,10 @@
           <div>
             <dt>ケース数</dt>
             <dd id="meta-case-count">-</dd>
+          </div>
+          <div>
+            <dt>端末向け</dt>
+            <dd id="meta-device-target">-</dd>
           </div>
           <div>
             <dt>並べ方</dt>
