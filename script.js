@@ -4,6 +4,7 @@ const categorySelect = document.getElementById("category-select");
 const deviceTargetSelect = document.getElementById("device-target-select");
 const styleSelect = document.getElementById("style-select");
 const focusSelect = document.getElementById("focus-select");
+const characterSelect = document.getElementById("character-select");
 const themeToggleButton = document.getElementById("theme-toggle-button");
 const generateButton = document.getElementById("generate-button");
 const angleVariantButton = document.getElementById("angle-variant-button");
@@ -20,6 +21,7 @@ const editDetails = document.getElementById("edit-details");
 const metaCategory = document.getElementById("meta-category");
 const metaCaseCount = document.getElementById("meta-case-count");
 const metaDeviceTarget = document.getElementById("meta-device-target");
+const metaCharacter = document.getElementById("meta-character");
 const metaLayout = document.getElementById("meta-layout");
 const metaLocation = document.getElementById("meta-location");
 const metaLight = document.getElementById("meta-light");
@@ -119,6 +121,518 @@ const focusModes = {
     "balanced emphasis between the smartphone case and the surrounding scene",
   "camera-closeup":
     "focus closely on the camera cutout area of the smartphone case while keeping the original design unchanged and clearly visible",
+};
+
+const characterThemes = {
+  none: {
+    label: "なし",
+  },
+  "disney-classic": {
+    label: "ディズニー全体",
+    sceneJa: "物語の始まりを感じる、上品で夢見心地な空間にする",
+    sceneEn:
+      "build a polished storybook-inspired setting with elegant decorative details, soft sparkle-like highlights, and a welcoming sense of wonder",
+    props: [
+      {
+        ja: "リボンを思わせる上品な装飾小物",
+        en: "refined decorative accents with ribbon-like curves",
+      },
+      {
+        ja: "きらめきを感じるガラス小物",
+        en: "small glass accents that catch the light with a subtle magical shimmer",
+      },
+    ],
+    moodJa: "華やかで希望があり、ロマンチックでやさしい",
+    moodEn: "graceful, uplifting, romantic, and softly whimsical",
+    detailsJa:
+      "絵本のような高揚感を出しつつ、現実の商用写真として成立する上品さを保つ",
+    detailsEn:
+      "create a story-rich sense of wonder while keeping the image grounded, elegant, and commercially realistic",
+  },
+  "disney-mickey": {
+    label: "ディズニー / ミッキー",
+    sceneJa: "クラシックで軽快なリズム感がある、赤と黄をほのかに感じる明るい空間にする",
+    sceneEn:
+      "create a classic upbeat setting with subtle red and golden accents, cheerful rhythm, and clean graphic energy",
+    props: [
+      {
+        ja: "丸みのあるレトロポップな小物",
+        en: "rounded retro-pop accents with clean playful curves",
+      },
+      {
+        ja: "明快な色差しを感じる整った雑貨",
+        en: "neatly arranged accessories with bright accent color contrast",
+      },
+    ],
+    moodJa: "陽気で親しみやすく、クラシックで元気",
+    moodEn: "cheerful, iconic, approachable, and upbeat",
+    detailsJa:
+      "軽やかなショータイム感をにじませつつ、商用写真としてすっきり見せる",
+    detailsEn:
+      "suggest lively showtime energy while keeping the image crisp, polished, and commercially usable",
+  },
+  "disney-minnie": {
+    label: "ディズニー / ミニー",
+    sceneJa: "可憐で華やかな、リボンやドットを連想する上品な空間にする",
+    sceneEn:
+      "build a graceful playful setting with ribbon-like styling, delicate dot-inspired accents, and polished feminine charm",
+    props: [
+      {
+        ja: "リボンを思わせる曲線的な小物",
+        en: "curved decorative accents that suggest ribbon motifs",
+      },
+      {
+        ja: "上品なドット感のある可愛らしい雑貨",
+        en: "cute polished props with subtle dotted styling",
+      },
+    ],
+    moodJa: "可愛らしく上品で、華やかでやさしい",
+    moodEn: "sweet, elegant, charming, and polished",
+    detailsJa:
+      "愛らしさを出しつつ、子どもっぽくしすぎない洗練感を保つ",
+    detailsEn:
+      "keep the scene charming and feminine while avoiding an overly childish finish",
+  },
+  "disney-donald": {
+    label: "ディズニー / ドナルド",
+    sceneJa: "海辺の風を感じる、爽快でにぎやかなマリン寄りの空間にする",
+    sceneEn:
+      "shape the scene with breezy coastal cues, crisp blue accents, and lively nautical-inspired energy",
+    props: [
+      {
+        ja: "マリンテイストの軽快な小物",
+        en: "light nautical-inspired props with brisk coastal character",
+      },
+      {
+        ja: "白と青を思わせる清潔感のある雑貨",
+        en: "clean accessories that hint at white-and-blue contrast",
+      },
+    ],
+    moodJa: "爽やかで元気があり、少しコミカルで快活",
+    moodEn: "fresh, spirited, lively, and lightly comedic",
+    detailsJa:
+      "にぎやかさを出しつつ、雑然とせず清潔で抜けのよい画にする",
+    detailsEn:
+      "bring in lively motion and humor while keeping the frame open, clean, and well organized",
+  },
+  "disney-daisy": {
+    label: "ディズニー / デイジー",
+    sceneJa: "都会的でおしゃれな、ラベンダーや白を思わせる洗練空間にする",
+    sceneEn:
+      "compose a stylish urban-chic setting with soft lavender-like accents, refined glamour, and fashion-forward polish",
+    props: [
+      {
+        ja: "ファッション小物を思わせる洗練アクセント",
+        en: "refined fashion-like accents with a boutique feel",
+      },
+      {
+        ja: "やわらかな色差しの上質な雑貨",
+        en: "elegant accessories with gentle color accents and a glossy finish",
+      },
+    ],
+    moodJa: "上品で都会的、華やかで自信がある",
+    moodEn: "stylish, elegant, glamorous, and confident",
+    detailsJa:
+      "きらびやかさを出しつつ、商品が埋もれない整った高級感を保つ",
+    detailsEn:
+      "add polished glamour while keeping the hero product clear and visually dominant",
+  },
+  "disney-pooh": {
+    label: "ディズニー / プー",
+    sceneJa: "木漏れ日と木のぬくもりを感じる、素朴でのんびりした空間にする",
+    sceneEn:
+      "create a warm rustic setting with honey-toned wood, gentle daylight, and relaxed countryside comfort",
+    props: [
+      {
+        ja: "木や布の素朴な小物",
+        en: "simple wooden and fabric accents with rustic warmth",
+      },
+      {
+        ja: "やさしい甘さを思わせる自然素材の雑貨",
+        en: "natural-material props that hint at mellow sweetness",
+      },
+    ],
+    moodJa: "のんびりしてやさしく、あたたかく安心感がある",
+    moodEn: "cozy, gentle, comforting, and unhurried",
+    detailsJa:
+      "ぬくもりを強めつつ、甘くなりすぎない自然体のライフスタイル写真にする",
+    detailsEn:
+      "emphasize warmth and comfort while keeping the scene natural and not overly sugary",
+  },
+  "disney-ariel": {
+    label: "ディズニー / アリエル",
+    sceneJa: "海の透明感ときらめきを感じる、瑞々しく夢のある空間にする",
+    sceneEn:
+      "build a luminous aquatic-inspired setting with iridescent highlights, sea-glass tones, and graceful flowing elegance",
+    props: [
+      {
+        ja: "水面の反射を思わせる透け感のある小物",
+        en: "translucent accents that suggest water reflections",
+      },
+      {
+        ja: "貝殻や海ガラスを連想する上品な雑貨",
+        en: "elegant props inspired by shells and sea-glass textures",
+      },
+    ],
+    moodJa: "みずみずしく幻想的で、自由で華やか",
+    moodEn: "fresh, luminous, dreamy, and free-spirited",
+    detailsJa:
+      "海辺のロマンを感じさせつつ、ファンタジーに寄りすぎない透明感で整える",
+    detailsEn:
+      "evoke seaside romance and shimmer without pushing the image into overt fantasy",
+  },
+  "disney-belle": {
+    label: "ディズニー / ベル",
+    sceneJa: "読書とクラシックな室内装飾を感じる、温かな知的空間にする",
+    sceneEn:
+      "build a warm literary setting with classic interior touches, golden light, and refined intellectual charm",
+    props: [
+      {
+        ja: "洋書や真鍮を思わせる上品な小物",
+        en: "elegant props inspired by old books and subtle brass details",
+      },
+      {
+        ja: "クラシックな室内を思わせる温かみのある雑貨",
+        en: "warm decorative accents with a timeless interior feel",
+      },
+    ],
+    moodJa: "知的で上品、温かく落ち着いている",
+    moodEn: "intelligent, graceful, warm, and composed",
+    detailsJa:
+      "物語性を出しつつ、重たくなりすぎない明るい上質感に整える",
+    detailsEn:
+      "introduce storybook sophistication while keeping the scene bright and commercially refined",
+  },
+  "disney-elsa": {
+    label: "ディズニー / エルサ",
+    sceneJa: "氷の透明感と静けさを感じる、クールで澄んだ空間にする",
+    sceneEn:
+      "shape a crystalline setting with cool luminosity, icy clarity, and elegant restrained drama",
+    props: [
+      {
+        ja: "ガラスや氷面を思わせる透明感のある小物",
+        en: "clear reflective accents that suggest glass and frozen surfaces",
+      },
+      {
+        ja: "寒色寄りのミニマルな雑貨",
+        en: "minimal accessories with cool-toned polished styling",
+      },
+    ],
+    moodJa: "澄んでいて静か、気高く洗練されている",
+    moodEn: "crisp, serene, poised, and refined",
+    detailsJa:
+      "冷たさを表現しつつ、無機質すぎず高級感のある画に保つ",
+    detailsEn:
+      "convey cool elegance while avoiding a sterile look and preserving premium appeal",
+  },
+  "disney-anna": {
+    label: "ディズニー / アナ",
+    sceneJa: "ぬくもりと行動力を感じる、明るく親しみやすい北国の空間にする",
+    sceneEn:
+      "create a lively cozy setting with nordic warmth, bright color accents, and approachable adventurous spirit",
+    props: [
+      {
+        ja: "温かな布小物や手仕事感のある雑貨",
+        en: "warm textile accents and handmade-style accessories",
+      },
+      {
+        ja: "親しみやすい色差しのカジュアル小物",
+        en: "casual props with friendly vivid color touches",
+      },
+    ],
+    moodJa: "朗らかで行動的、温かく親しみやすい",
+    moodEn: "optimistic, active, warm, and approachable",
+    detailsJa:
+      "元気さを出しつつ、生活感を整えた清潔な商品写真にする",
+    detailsEn:
+      "bring in cheerful energy while keeping the scene tidy, bright, and commercially clean",
+  },
+  "disney-cinderella": {
+    label: "ディズニー / シンデレラ",
+    sceneJa: "ガラスの透明感と夜の上品さを感じる、静かなドレスアップ空間にする",
+    sceneEn:
+      "compose an elegant evening-inspired setting with glass-like highlights, soft silver-blue tones, and refined transformation glamour",
+    props: [
+      {
+        ja: "ガラス細工を思わせる繊細な小物",
+        en: "delicate accents inspired by cut glass and polished crystal",
+      },
+      {
+        ja: "夜会を思わせる上品で軽い雑貨",
+        en: "light refined accessories that hint at formal evening styling",
+      },
+    ],
+    moodJa: "上品で静か、きらめきがあり夢見心地",
+    moodEn: "elegant, quiet, sparkling, and dreamy",
+    detailsJa:
+      "華やかさを保ちつつ、過度に豪華にせず現実的な高級感に抑える",
+    detailsEn:
+      "preserve glamour while keeping the image believable and controlled rather than overly ornate",
+  },
+  "disney-alice": {
+    label: "ディズニー / アリス",
+    sceneJa: "ティーパーティーの遊び心と不思議な整然さがある空間にする",
+    sceneEn:
+      "build a whimsical tea-party-inspired setting with curious detail, playful scale cues, and neatly controlled eccentricity",
+    props: [
+      {
+        ja: "ティータイムを思わせる遊び心のある小物",
+        en: "playful tea-time accents with a curated whimsical feel",
+      },
+      {
+        ja: "不思議さを感じる整った装飾雑貨",
+        en: "tidy decorative props that suggest curious surreal charm",
+      },
+    ],
+    moodJa: "不思議で軽快、上品な遊び心がある",
+    moodEn: "curious, whimsical, lively, and neatly imaginative",
+    detailsJa:
+      "奇妙さを入れつつ、商用写真として破綻しない範囲で整える",
+    detailsEn:
+      "introduce playful oddity while keeping the composition coherent and commercially usable",
+  },
+  "disney-tinkerbell": {
+    label: "ディズニー / ティンカーベル",
+    sceneJa: "小さな光の粒と草花の気配がある、軽やかでいたずらっぽい空間にする",
+    sceneEn:
+      "create a delicate botanical setting with tiny glowing accents, airy green tones, and playful nimble energy",
+    props: [
+      {
+        ja: "草花や羽の軽さを思わせる小物",
+        en: "light botanical accents that suggest petals and feather-like delicacy",
+      },
+      {
+        ja: "きらめきの余韻を感じる小さな雑貨",
+        en: "small sparkling accessories with a subtle glowing finish",
+      },
+    ],
+    moodJa: "軽やかでいたずらっぽく、可憐で明るい",
+    moodEn: "airy, mischievous, delicate, and bright",
+    detailsJa:
+      "妖精らしいきらめきをにじませつつ、現実のテーブルトップ写真として成立させる",
+    detailsEn:
+      "suggest fairy-like sparkle while keeping the scene grounded as a realistic tabletop image",
+  },
+  "disney-rapunzel": {
+    label: "ディズニー / ラプンツェル",
+    sceneJa: "夕方の金色の光と花の彩りを感じる、柔らかく創造的な空間にする",
+    sceneEn:
+      "shape a glowing creative setting with golden-hour warmth, floral color accents, and an artistic handcrafted mood",
+    props: [
+      {
+        ja: "花やクラフト感を思わせるやわらかな小物",
+        en: "soft creative props inspired by florals and handmade crafts",
+      },
+      {
+        ja: "筆記具やアトリエ感のある上品な雑貨",
+        en: "tasteful studio-like accessories with an artistic feel",
+      },
+    ],
+    moodJa: "朗らかで創造的、あたたかく夢見心地",
+    moodEn: "radiant, creative, warm, and dreamlike",
+    detailsJa:
+      "黄金色の高揚感を入れつつ、商品ディテールが見える自然な露出を保つ",
+    detailsEn:
+      "bring in glowing optimism while preserving natural exposure and clear product detail",
+  },
+  "disney-stitch": {
+    label: "ディズニー / スティッチ",
+    sceneJa: "南国の空気と自由な遊び心を感じる、青の抜け感がある空間にする",
+    sceneEn:
+      "create a tropical playful setting with airy blue tones, casual island energy, and mischievous charm",
+    props: [
+      {
+        ja: "南国の雑貨を思わせる軽い小物",
+        en: "light island-inspired props with relaxed tropical character",
+      },
+      {
+        ja: "青の抜け感があるカジュアル小物",
+        en: "casual accessories with airy blue-accent styling",
+      },
+    ],
+    moodJa: "自由でやんちゃ、明るく開放的で親しみやすい",
+    moodEn: "free-spirited, mischievous, sunny, and approachable",
+    detailsJa:
+      "アクティブさを出しつつ、騒がしすぎない抜け感のある商品写真にする",
+    detailsEn:
+      "capture energetic personality while keeping the composition breezy, controlled, and product-focused",
+  },
+  "disney-baymax": {
+    label: "ディズニー / ベイマックス",
+    sceneJa: "白を基調にした近未来のやさしさを感じる、清潔で安心感のある空間にする",
+    sceneEn:
+      "create a clean near-future setting with soft white surfaces, gentle technology cues, and reassuring minimal warmth",
+    props: [
+      {
+        ja: "白くやわらかなフォルムのミニマル小物",
+        en: "minimal rounded props with soft white sculptural forms",
+      },
+      {
+        ja: "医療やテックを思わせる清潔感のある雑貨",
+        en: "clean accessories that hint at healthcare and gentle technology",
+      },
+    ],
+    moodJa: "安心感があり、清潔で未来的、やさしい",
+    moodEn: "comforting, clean, futuristic, and gentle",
+    detailsJa:
+      "テック感を入れつつ、冷たすぎないヒューマンな商品写真にする",
+    detailsEn:
+      "introduce futuristic clarity while preserving warmth and human-friendly softness",
+  },
+  "disney-marie": {
+    label: "ディズニー / マリー",
+    sceneJa: "パリの子猫のような可憐さが漂う、白とピンクの上品な空間にする",
+    sceneEn:
+      "shape a chic feline-inspired setting with white and blush tones, parisian sweetness, and refined softness",
+    props: [
+      {
+        ja: "やわらかな白布やリボンを思わせる小物",
+        en: "soft white fabric accents and ribbon-inspired decorative props",
+      },
+      {
+        ja: "可憐で上品な小さな雑貨",
+        en: "small elegant accessories with delicate sweet styling",
+      },
+    ],
+    moodJa: "可憐でおしゃれ、やわらかく上品",
+    moodEn: "dainty, stylish, soft, and elegant",
+    detailsJa:
+      "甘さを出しつつ、上質で洗練されたトーンにまとめる",
+    detailsEn:
+      "bring in sweetness while keeping the overall styling polished and upscale",
+  },
+  "disney-chipdale": {
+    label: "ディズニー / チップとデール",
+    sceneJa: "木の実や森のいたずらを感じる、軽快でナチュラルな空間にする",
+    sceneEn:
+      "build a playful woodland setting with nutty natural textures, quick energy, and cheerful rustic charm",
+    props: [
+      {
+        ja: "木の実や木肌を思わせる自然小物",
+        en: "natural props inspired by nuts, bark, and woodland textures",
+      },
+      {
+        ja: "ふたりの掛け合いを思わせる軽快な雑貨",
+        en: "lively paired accents that suggest back-and-forth playful energy",
+      },
+    ],
+    moodJa: "いたずらっぽく、明るく、自然で親しみやすい",
+    moodEn: "playful, bright, natural, and friendly",
+    detailsJa:
+      "森の楽しさを入れつつ、雑多にせず商品を主役に保つ",
+    detailsEn:
+      "bring in woodland fun while keeping the styling controlled and product-led",
+  },
+  "disney-jasmine": {
+    label: "ディズニー / ジャスミン",
+    sceneJa: "夜の宮殿と異国の風を感じる、青緑系の気品ある空間にする",
+    sceneEn:
+      "compose an exotic evening setting with jewel-toned blue-green accents, airy luxury, and poised confidence",
+    props: [
+      {
+        ja: "オリエンタルな幾何感を思わせる小物",
+        en: "decorative accents inspired by elegant geometric patterns",
+      },
+      {
+        ja: "宝石色を感じる上質な雑貨",
+        en: "refined accessories with jewel-toned color depth",
+      },
+    ],
+    moodJa: "気高く自由で、華やかで洗練されている",
+    moodEn: "regal, independent, glamorous, and refined",
+    detailsJa:
+      "異国感を入れつつ、装飾過多にせず上品な余白を保つ",
+    detailsEn:
+      "suggest exotic richness while preserving clean space and tasteful restraint",
+  },
+  "disney-maleficent": {
+    label: "ディズニー / マレフィセント",
+    sceneJa: "深い緑と黒のコントラストがある、静かな緊張感の空間にする",
+    sceneEn:
+      "shape a dramatic setting with deep green-black contrast, sculptural shadows, and controlled ominous elegance",
+    props: [
+      {
+        ja: "尖りのあるシルエットを思わせる装飾小物",
+        en: "decorative accents with sharp sculptural silhouettes",
+      },
+      {
+        ja: "ダークトーンでまとめた上質な雑貨",
+        en: "premium dark-toned accessories with a dramatic finish",
+      },
+    ],
+    moodJa: "気高くミステリアスで、静かな迫力がある",
+    moodEn: "majestic, mysterious, dramatic, and controlled",
+    detailsJa:
+      "ダークさを強めつつ、商品が沈まない露出とコントラストに整える",
+    detailsEn:
+      "push the dramatic mood while keeping the hero product visible and cleanly separated",
+  },
+  "tom-and-jerry": {
+    label: "トムアンドジェリー",
+    sceneJa: "追いかけっこの気配が残る、軽快で遊び心のある生活空間にする",
+    sceneEn:
+      "shape the setting as a lively lived-in space with playful motion cues, slightly mischievous energy, and tidy comedic tension",
+    props: [
+      {
+        ja: "動きの余韻を感じる軽いテーブル小物",
+        en: "light tabletop props arranged to suggest playful movement",
+      },
+      {
+        ja: "朝食まわりを思わせる親しみやすい小物",
+        en: "friendly breakfast-style accents that make the scene feel active and familiar",
+      },
+    ],
+    moodJa: "軽快でいたずらっぽく、親しみやすく元気",
+    moodEn: "playful, mischievous, approachable, and energetic",
+    detailsJa:
+      "ドタバタ感をほのめかしつつも、商品写真として散らかりすぎない清潔感を保つ",
+    detailsEn:
+      "hint at brisk comedic action while keeping the composition clean, balanced, and suitable for product photography",
+  },
+  moomin: {
+    label: "ムーミン",
+    sceneJa: "北欧の物語を思わせる、自然に囲まれた静かでやさしい空間にする",
+    sceneEn:
+      "create a serene nordic-inspired setting with gentle nature presence, handcrafted warmth, and a quiet storybook atmosphere",
+    props: [
+      {
+        ja: "素朴な陶器や木の小物",
+        en: "simple ceramic and wooden accents with a handmade feel",
+      },
+      {
+        ja: "草花や自然素材を感じる控えめな小物",
+        en: "subtle botanical touches and natural-material props",
+      },
+    ],
+    moodJa: "静かでやさしく、素朴であたたかい",
+    moodEn: "calm, gentle, rustic, and warmly comforting",
+    detailsJa:
+      "童話の余韻を感じさせつつ、自然体で落ち着いた商品写真に仕上げる",
+    detailsEn:
+      "evoke a gentle fable-like atmosphere while preserving a natural, grounded commercial photo finish",
+  },
+  miffy: {
+    label: "ミッフィー",
+    sceneJa: "余白を大切にした、明るく素朴で清潔感のある空間にする",
+    sceneEn:
+      "compose a bright minimalist setting with clean negative space, simple forms, soft primary-color accents, and a childlike sense of clarity",
+    props: [
+      {
+        ja: "丸みのあるミニマルな小物",
+        en: "rounded minimalist props with simple silhouettes",
+      },
+      {
+        ja: "やさしい差し色のあるシンプルな雑貨",
+        en: "simple accessories with soft accent colors and a clean finish",
+      },
+    ],
+    moodJa: "無垢で明るく、やさしく整っている",
+    moodEn: "innocent, bright, gentle, and neatly composed",
+    detailsJa:
+      "素朴な可愛らしさを出しつつ、余白と清潔感を保ったミニマルな商品写真にする",
+    detailsEn:
+      "capture understated charm while preserving generous negative space and a clean minimalist commercial look",
+  },
 };
 
 const scenarios = [
@@ -1767,6 +2281,41 @@ function getFilteredScenarios() {
   );
 }
 
+function appendUniqueText(base, addition, separator) {
+  if (!addition) {
+    return base;
+  }
+
+  if (!base) {
+    return addition;
+  }
+
+  return normalizeText(base).includes(normalizeText(addition))
+    ? base
+    : `${base}${separator}${addition}`;
+}
+
+function mergeThemeProps(baseProps, themeProps, preferredCount) {
+  const merged = [...baseProps];
+  const limit = Math.max(
+    preferredCount,
+    baseProps.length + Math.min(themeProps.length, 1),
+    themeProps.length,
+  );
+
+  themeProps.forEach((prop) => {
+    if (merged.length >= limit) {
+      return;
+    }
+
+    if (!merged.some((item) => item.en === prop.en)) {
+      merged.push(prop);
+    }
+  });
+
+  return merged;
+}
+
 function generatePrompt() {
   const selectedStyle = styles[styleSelect.value];
   const focus = focusModes[focusSelect.value];
@@ -1774,7 +2323,16 @@ function generatePrompt() {
   const selectedLayout = layoutModes[layoutSelect.value];
   const availableScenarios = getFilteredScenarios();
   const scenario = sample(availableScenarios.length > 0 ? availableScenarios : scenarios)[0];
-  const props = [];
+  const selectedCharacter = characterThemes[characterSelect.value] || characterThemes.none;
+  const baseProps = sample(scenario.props || [], selectedStyle.propsCount).map((item) => ({
+    en: item,
+    ja: translateProps([item], scenario)[0],
+  }));
+  const props = mergeThemeProps(
+    baseProps,
+    selectedCharacter.props || [],
+    selectedStyle.propsCount,
+  );
   const extraDetails = sample(detailOptions, 3);
   const scenarioCategories = getScenarioCategories(scenario);
   const deviceTarget = deviceTargetSelect.value;
@@ -1785,6 +2343,27 @@ function generatePrompt() {
     categorySelect.value === "all"
       ? scenarioCategories.map((category) => categoryLabels[category]).join(", ") || categoryLabels.all
       : categoryLabels[categorySelect.value];
+  const sceneJa = appendUniqueText(
+    translateLocation(scenario.location, scenario.locationJa),
+    selectedCharacter.sceneJa,
+    "。",
+  );
+  const sceneEn = appendUniqueText(
+    scenario.location,
+    selectedCharacter.sceneEn,
+    ", while ",
+  );
+  const moodJa = appendUniqueText(
+    translateMood(scenario.mood, scenario.moodJa),
+    selectedCharacter.moodJa,
+    "、",
+  );
+  const moodEn = appendUniqueText(scenario.mood, selectedCharacter.moodEn, ", ");
+  const detailTextsEn = [...extraDetails, selectedCharacter.detailsEn].filter(Boolean);
+  const detailTextsJa = [
+    ...translateDetails(extraDetails),
+    selectedCharacter.detailsJa,
+  ].filter(Boolean);
 
   currentPromptState = {
     caseCount,
@@ -1805,24 +2384,25 @@ function generatePrompt() {
     deviceTargetJa: deviceTargetText.ja,
     deviceTargetEn: deviceTargetText.en,
     deviceTargetLabel,
-    scene: translateLocation(scenario.location, scenario.locationJa),
+    characterLabel: selectedCharacter.label,
+    scene: sceneJa,
     light: translateLight(scenario.light, scenario.lightJa),
     angle: translateAngle(scenario.angle, scenario.angleJa),
-    props: translateProps(props, scenario).join("、"),
-    mood: translateMood(scenario.mood, scenario.moodJa),
-    details: translateDetails(extraDetails).join("、"),
-    originalSceneJa: translateLocation(scenario.location, scenario.locationJa),
+    props: props.map((item) => item.ja).join("、"),
+    mood: moodJa,
+    details: detailTextsJa.join("、"),
+    originalSceneJa: sceneJa,
     originalLightJa: translateLight(scenario.light, scenario.lightJa),
     originalAngleJa: translateAngle(scenario.angle, scenario.angleJa),
-    originalPropsJa: translateProps(props, scenario).join("、"),
-    originalMoodJa: translateMood(scenario.mood, scenario.moodJa),
-    originalDetailsJa: translateDetails(extraDetails).join("、"),
-    originalSceneEn: scenario.location,
+    originalPropsJa: props.map((item) => item.ja).join("、"),
+    originalMoodJa: moodJa,
+    originalDetailsJa: detailTextsJa.join("、"),
+    originalSceneEn: sceneEn,
     originalLightEn: scenario.light,
     originalAngleEn: scenario.angle,
-    originalPropsEn: props.join(", "),
-    originalMoodEn: scenario.mood,
-    originalDetailsEn: extraDetails.join(", "),
+    originalPropsEn: props.map((item) => item.en).join(", "),
+    originalMoodEn: moodEn,
+    originalDetailsEn: detailTextsEn.join(", "),
     toneEn: selectedStyle.tone,
     focusEn: focus,
   };
@@ -1832,11 +2412,12 @@ function generatePrompt() {
   metaCategory.textContent = categoryText;
   metaCaseCount.textContent = `${caseCount}個`;
   metaDeviceTarget.textContent = deviceTargetLabel;
+  metaCharacter.textContent = selectedCharacter.label;
   metaLayout.textContent = selectedLayout.label;
   metaLocation.textContent = scenario.location;
   metaLight.textContent = scenario.light;
   metaAngle.textContent = scenario.angle;
-  metaProps.textContent = props.length > 0 ? props.join(", ") : "なし";
+  metaProps.textContent = props.length > 0 ? props.map((item) => item.en).join(", ") : "なし";
 }
 
 function fillJapaneseEditors(state) {
@@ -2636,6 +3217,8 @@ if (themeToggleButton) {
 }
 deviceTargetSelect.addEventListener("input", generatePrompt);
 deviceTargetSelect.addEventListener("change", generatePrompt);
+characterSelect.addEventListener("input", generatePrompt);
+characterSelect.addEventListener("change", generatePrompt);
 editScene.addEventListener("input", syncPromptFromJapaneseEditors);
 editScene.addEventListener("change", syncPromptFromJapaneseEditors);
 editLight.addEventListener("input", syncPromptFromJapaneseEditors);
