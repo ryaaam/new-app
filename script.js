@@ -5,9 +5,11 @@ const deviceTargetSelect = document.getElementById("device-target-select");
 const styleSelect = document.getElementById("style-select");
 const focusSelect = document.getElementById("focus-select");
 const characterSelect = document.getElementById("character-select");
+const propsModeSelect = document.getElementById("props-mode-select");
 const themeToggleButton = document.getElementById("theme-toggle-button");
 const generateButton = document.getElementById("generate-button");
 const angleVariantButton = document.getElementById("angle-variant-button");
+const favoriteButton = document.getElementById("favorite-button");
 const copyButton = document.getElementById("copy-button");
 const promptOutput = document.getElementById("prompt-output");
 const promptOutputJa = document.getElementById("prompt-output-ja");
@@ -17,6 +19,14 @@ const editAngle = document.getElementById("edit-angle");
 const editProps = document.getElementById("edit-props");
 const editMood = document.getElementById("edit-mood");
 const editDetails = document.getElementById("edit-details");
+const ngPresetInputs = Array.from(
+  document.querySelectorAll('.preset-option input[type="checkbox"]'),
+);
+const saveFeedback = document.getElementById("save-feedback");
+const favoritesList = document.getElementById("favorites-list");
+const historyList = document.getElementById("history-list");
+const favoritesEmpty = document.getElementById("favorites-empty");
+const historyEmpty = document.getElementById("history-empty");
 
 const metaCategory = document.getElementById("meta-category");
 const metaCaseCount = document.getElementById("meta-case-count");
@@ -30,7 +40,13 @@ const metaProps = document.getElementById("meta-props");
 
 let currentPromptState = null;
 const themeStorageKey = "prompt-generator-theme";
+const historyStorageKey = "prompt-generator-history";
+const favoritesStorageKey = "prompt-generator-favorites";
 const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+const maxHistoryEntries = 12;
+const maxFavoriteEntries = 20;
+let promptHistory = [];
+let favoritePrompts = [];
 
 function readStoredTheme() {
   try {
@@ -91,6 +107,61 @@ function syncThemeWithSystem(event) {
   }
 
   applyTheme(event.matches ? "dark" : "light");
+}
+
+const ngPresetOptions = {
+  "no-people": {
+    label: "人物や手を入れない",
+    en: "Do not add hands, people, or body parts anywhere in the frame.",
+    ja: "人物、手、体の一部は画面に入れない。",
+  },
+  "preserve-print": {
+    label: "柄・文字・ロゴを崩さない",
+    en: "Do not distort, rewrite, replace, or blur any printed artwork, text, or logo on the case.",
+    ja: "ケース上の柄、文字、ロゴは崩さず、書き換えず、ぼかさない。",
+  },
+  "no-extra-objects": {
+    label: "余計な物を増やさない",
+    en: "Do not introduce extra objects beyond a minimal set of realistic supporting props.",
+    ja: "必要最小限の小物以外は増やさず、余計な物を入れない。",
+  },
+  "clean-background": {
+    label: "背景を主張させすぎない",
+    en: "Keep the background understated so it never overpowers the smartphone case.",
+    ja: "背景は控えめにして、スマホケースより目立たせない。",
+  },
+  "realistic-materials": {
+    label: "素材感を不自然に変えない",
+    en: "Keep the original surface finish and material impression realistic without artificial texture changes.",
+    ja: "元の表面仕上げや素材感は不自然に変えず、現実的に保つ。",
+  },
+  "no-harsh-effects": {
+    label: "過度な反射や演出を避ける",
+    en: "Avoid excessive glare, dramatic reflections, heavy bokeh, or overdone visual effects.",
+    ja: "強すぎる反射、派手すぎる演出、過度なボケ表現は避ける。",
+  },
+};
+
+function readJsonStorage(key, fallbackValue) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) {
+      return fallbackValue;
+    }
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : fallbackValue;
+  } catch (error) {
+    return fallbackValue;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    // Ignore storage failures in restricted browsing contexts.
+  }
 }
 
 const styles = {
@@ -2316,7 +2387,263 @@ function mergeThemeProps(baseProps, themeProps, preferredCount) {
   return merged;
 }
 
+function getSelectedNgPresets() {
+  return ngPresetInputs
+    .filter((input) => input.checked)
+    .map((input) => ({
+      id: input.value,
+      ...ngPresetOptions[input.value],
+    }))
+    .filter((preset) => preset.label);
+}
+
+function getEditedFields() {
+  return {
+    scene: editScene.value.trim(),
+    light: editLight.value.trim(),
+    angle: editAngle.value.trim(),
+    props: editProps.value.trim(),
+    mood: editMood.value.trim(),
+    details: editDetails.value.trim(),
+  };
+}
+
+function getControlValues() {
+  return {
+    caseCount: caseCountSelect.value,
+    layout: layoutSelect.value,
+    category: categorySelect.value,
+    deviceTarget: deviceTargetSelect.value,
+    style: styleSelect.value,
+    focus: focusSelect.value,
+    character: characterSelect.value,
+    propsMode: propsModeSelect.value,
+  };
+}
+
+function getMetaValues() {
+  return {
+    category: metaCategory.textContent,
+    caseCount: metaCaseCount.textContent,
+    deviceTarget: metaDeviceTarget.textContent,
+    character: metaCharacter.textContent,
+    layout: metaLayout.textContent,
+    location: metaLocation.textContent,
+    light: metaLight.textContent,
+    angle: metaAngle.textContent,
+    props: metaProps.textContent,
+  };
+}
+
+function createSnapshot() {
+  if (!currentPromptState) {
+    return null;
+  }
+
+  const edited = getEditedFields();
+  const summaryScene = edited.scene || currentPromptState.originalSceneJa || "未設定";
+
+  return {
+    id: createRecordId(),
+    savedAt: new Date().toISOString(),
+    title: `${metaCategory.textContent} / ${metaCharacter.textContent}`,
+    summary: summaryScene,
+    controls: getControlValues(),
+    ngPresets: getSelectedNgPresets().map((preset) => preset.id),
+    editors: edited,
+    state: JSON.parse(JSON.stringify(currentPromptState)),
+    meta: getMetaValues(),
+    prompt: promptOutput.value,
+  };
+}
+
+function createRecordId() {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function setFeedback(message) {
+  if (!saveFeedback) {
+    return;
+  }
+
+  saveFeedback.textContent = message;
+}
+
+function formatSavedDate(isoString) {
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("ja-JP", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function renderSavedCards(container, emptyNode, items, type) {
+  if (!container || !emptyNode) {
+    return;
+  }
+
+  emptyNode.hidden = items.length > 0;
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <article class="saved-card">
+          <div class="saved-card-header">
+            <div>
+              <h3>${escapeHtml(item.title || "保存済みプロンプト")}</h3>
+              <time datetime="${escapeHtml(item.savedAt || "")}">${escapeHtml(formatSavedDate(item.savedAt))}</time>
+            </div>
+            <div class="saved-card-actions">
+              <button type="button" class="secondary" data-action="restore" data-kind="${type}" data-id="${escapeHtml(item.id)}">復元</button>
+              <button type="button" class="secondary" data-action="delete" data-kind="${type}" data-id="${escapeHtml(item.id)}">削除</button>
+            </div>
+          </div>
+          <p>${escapeHtml(item.summary || "")}</p>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderSavedPanels() {
+  renderSavedCards(favoritesList, favoritesEmpty, favoritePrompts, "favorite");
+  renderSavedCards(historyList, historyEmpty, promptHistory, "history");
+}
+
+function loadSavedData() {
+  promptHistory = readJsonStorage(historyStorageKey, []);
+  favoritePrompts = readJsonStorage(favoritesStorageKey, []);
+  renderSavedPanels();
+}
+
+function persistHistory() {
+  writeJsonStorage(historyStorageKey, promptHistory);
+  renderSavedPanels();
+}
+
+function persistFavorites() {
+  writeJsonStorage(favoritesStorageKey, favoritePrompts);
+  renderSavedPanels();
+}
+
+function saveCurrentToHistory() {
+  const snapshot = createSnapshot();
+  if (!snapshot || !snapshot.prompt) {
+    return;
+  }
+
+  const lastEntry = promptHistory[0];
+  if (lastEntry && lastEntry.prompt === snapshot.prompt) {
+    return;
+  }
+
+  promptHistory = [snapshot, ...promptHistory].slice(0, maxHistoryEntries);
+  persistHistory();
+}
+
+function saveCurrentToFavorites() {
+  const snapshot = createSnapshot();
+  if (!snapshot || !snapshot.prompt) {
+    setFeedback("保存できるプロンプトがありません。");
+    return;
+  }
+
+  const exists = favoritePrompts.some((item) => item.prompt === snapshot.prompt);
+  if (exists) {
+    setFeedback("同じ内容はすでにお気に入りにあります。");
+    return;
+  }
+
+  favoritePrompts = [snapshot, ...favoritePrompts].slice(0, maxFavoriteEntries);
+  persistFavorites();
+  setFeedback("お気に入りに保存しました。");
+}
+
+function deleteSavedItem(kind, id) {
+  if (kind === "favorite") {
+    favoritePrompts = favoritePrompts.filter((item) => item.id !== id);
+    persistFavorites();
+    return;
+  }
+
+  promptHistory = promptHistory.filter((item) => item.id !== id);
+  persistHistory();
+}
+
+function applySnapshot(snapshot) {
+  if (!snapshot) {
+    return;
+  }
+
+  const controls = snapshot.controls || {};
+  caseCountSelect.value = controls.caseCount || caseCountSelect.value;
+  layoutSelect.value = controls.layout || layoutSelect.value;
+  categorySelect.value = controls.category || categorySelect.value;
+  deviceTargetSelect.value = controls.deviceTarget || deviceTargetSelect.value;
+  styleSelect.value = controls.style || styleSelect.value;
+  focusSelect.value = controls.focus || focusSelect.value;
+  characterSelect.value = controls.character || characterSelect.value;
+  propsModeSelect.value = controls.propsMode || "none";
+
+  ngPresetInputs.forEach((input) => {
+    input.checked = Array.isArray(snapshot.ngPresets)
+      ? snapshot.ngPresets.includes(input.value)
+      : false;
+  });
+
+  currentPromptState = JSON.parse(JSON.stringify(snapshot.state || {}));
+
+  const editors = snapshot.editors || {};
+  editScene.value = editors.scene || "";
+  editLight.value = editors.light || "";
+  editAngle.value = editors.angle || "";
+  editProps.value = editors.props || "";
+  editMood.value = editors.mood || "";
+  editDetails.value = editors.details || "";
+
+  const meta = snapshot.meta || {};
+  metaCategory.textContent = meta.category || "-";
+  metaCaseCount.textContent = meta.caseCount || "-";
+  metaDeviceTarget.textContent = meta.deviceTarget || "-";
+  metaCharacter.textContent = meta.character || "-";
+  metaLayout.textContent = meta.layout || "-";
+  metaLocation.textContent = meta.location || "-";
+  metaLight.textContent = meta.light || "-";
+  metaAngle.textContent = meta.angle || "-";
+  metaProps.textContent = meta.props || "-";
+
+  syncPromptFromJapaneseEditors();
+  setFeedback("保存済みの内容を復元しました。");
+}
+
+function handleSavedListClick(event) {
+  const button = event.target.closest("button[data-action]");
+  if (!button) {
+    return;
+  }
+
+  const { action, kind, id } = button.dataset;
+  const collection = kind === "favorite" ? favoritePrompts : promptHistory;
+  const target = collection.find((item) => item.id === id);
+
+  if (action === "restore") {
+    applySnapshot(target);
+    return;
+  }
+
+  if (action === "delete") {
+    deleteSavedItem(kind, id);
+    setFeedback(kind === "favorite" ? "お気に入りを削除しました。" : "履歴を削除しました。");
+  }
+}
+
 function generatePrompt() {
+  setFeedback("");
   const selectedStyle = styles[styleSelect.value];
   const focus = focusModes[focusSelect.value];
   const caseCount = Number(caseCountSelect.value);
@@ -2324,15 +2651,22 @@ function generatePrompt() {
   const availableScenarios = getFilteredScenarios();
   const scenario = sample(availableScenarios.length > 0 ? availableScenarios : scenarios)[0];
   const selectedCharacter = characterThemes[characterSelect.value] || characterThemes.none;
-  const baseProps = sample(scenario.props || [], selectedStyle.propsCount).map((item) => ({
-    en: item,
-    ja: translateProps([item], scenario)[0],
-  }));
-  const props = mergeThemeProps(
-    baseProps,
-    selectedCharacter.props || [],
-    selectedStyle.propsCount,
-  );
+  const propsMode = propsModeSelect.value || "none";
+  const baseProps =
+    propsMode === "with"
+      ? sample(scenario.props || [], selectedStyle.propsCount).map((item) => ({
+          en: item,
+          ja: translateProps([item], scenario)[0],
+        }))
+      : [];
+  const props =
+    propsMode === "with"
+      ? mergeThemeProps(
+          baseProps,
+          selectedCharacter.props || [],
+          selectedStyle.propsCount,
+        )
+      : [];
   const extraDetails = sample(detailOptions, 3);
   const scenarioCategories = getScenarioCategories(scenario);
   const deviceTarget = deviceTargetSelect.value;
@@ -2385,6 +2719,7 @@ function generatePrompt() {
     deviceTargetEn: deviceTargetText.en,
     deviceTargetLabel,
     characterLabel: selectedCharacter.label,
+    propsMode,
     scene: sceneJa,
     light: translateLight(scenario.light, scenario.lightJa),
     angle: translateAngle(scenario.angle, scenario.angleJa),
@@ -2408,7 +2743,6 @@ function generatePrompt() {
   };
 
   fillJapaneseEditors(currentPromptState);
-  syncPromptFromJapaneseEditors();
   metaCategory.textContent = categoryText;
   metaCaseCount.textContent = `${caseCount}個`;
   metaDeviceTarget.textContent = deviceTargetLabel;
@@ -2418,6 +2752,8 @@ function generatePrompt() {
   metaLight.textContent = scenario.light;
   metaAngle.textContent = scenario.angle;
   metaProps.textContent = props.length > 0 ? props.map((item) => item.en).join(", ") : "なし";
+  syncPromptFromJapaneseEditors();
+  saveCurrentToHistory();
 }
 
 function fillJapaneseEditors(state) {
@@ -2434,14 +2770,8 @@ function syncPromptFromJapaneseEditors() {
     return;
   }
 
-  const edited = {
-    scene: editScene.value.trim(),
-    light: editLight.value.trim(),
-    angle: editAngle.value.trim(),
-    props: editProps.value.trim(),
-    mood: editMood.value.trim(),
-    details: editDetails.value.trim(),
-  };
+  const edited = getEditedFields();
+  const selectedNgPresets = getSelectedNgPresets();
 
   const editedEn = {
     scene: translateEditedJapaneseToEnglish("scene", edited.scene, currentPromptState),
@@ -2476,6 +2806,7 @@ function syncPromptFromJapaneseEditors() {
     editedEn.props ? `- Props: ${editedEn.props}.` : "",
     editedEn.mood ? `- Mood: ${editedEn.mood}.` : "",
     `${editedEn.details ? `- Additional direction: ${editedEn.details}.` : ""}`,
+    ...selectedNgPresets.map((preset) => `- ${preset.en}`),
     "",
     "Style:",
     `- ${currentPromptState.toneEn}.`,
@@ -2503,6 +2834,7 @@ function syncPromptFromJapaneseEditors() {
     edited.mood ? `雰囲気: ${edited.mood}。` : "",
     `見せ方: ${currentPromptState.focusText}。`,
     edited.details ? `追加条件: ${edited.details}。` : "",
+    ...selectedNgPresets.map((preset) => `NG条件: ${preset.ja}`),
   ].filter(Boolean);
 
   promptOutput.value = promptLines.join("\n");
@@ -2513,6 +2845,8 @@ function createAngleVariant() {
   if (!currentPromptState) {
     return;
   }
+
+  setFeedback("");
 
   const nextAngleEn = sample(
     anglePool.filter((angle) => angle !== currentPromptState.originalAngleEn),
@@ -2529,6 +2863,7 @@ function createAngleVariant() {
   editAngle.value = currentPromptState.originalAngleJa;
   syncPromptFromJapaneseEditors();
   metaAngle.textContent = nextAngleEn;
+  saveCurrentToHistory();
   angleVariantButton.textContent = "変更済み";
   window.setTimeout(() => {
     angleVariantButton.textContent = "構図違い";
@@ -3211,14 +3546,29 @@ async function copyPrompt() {
 
 generateButton.addEventListener("click", generatePrompt);
 angleVariantButton.addEventListener("click", createAngleVariant);
+if (favoriteButton) {
+  favoriteButton.addEventListener("click", saveCurrentToFavorites);
+}
 copyButton.addEventListener("click", copyPrompt);
 if (themeToggleButton) {
   themeToggleButton.addEventListener("click", toggleTheme);
 }
+if (favoritesList) {
+  favoritesList.addEventListener("click", handleSavedListClick);
+}
+if (historyList) {
+  historyList.addEventListener("click", handleSavedListClick);
+}
+ngPresetInputs.forEach((input) => {
+  input.addEventListener("input", syncPromptFromJapaneseEditors);
+  input.addEventListener("change", syncPromptFromJapaneseEditors);
+});
 deviceTargetSelect.addEventListener("input", generatePrompt);
 deviceTargetSelect.addEventListener("change", generatePrompt);
 characterSelect.addEventListener("input", generatePrompt);
 characterSelect.addEventListener("change", generatePrompt);
+propsModeSelect.addEventListener("input", generatePrompt);
+propsModeSelect.addEventListener("change", generatePrompt);
 editScene.addEventListener("input", syncPromptFromJapaneseEditors);
 editScene.addEventListener("change", syncPromptFromJapaneseEditors);
 editLight.addEventListener("input", syncPromptFromJapaneseEditors);
@@ -3238,4 +3588,5 @@ if (typeof prefersDarkScheme.addEventListener === "function") {
 } else if (typeof prefersDarkScheme.addListener === "function") {
   prefersDarkScheme.addListener(syncThemeWithSystem);
 }
+loadSavedData();
 generatePrompt();

@@ -139,6 +139,51 @@
             <option value="miffy">ミッフィー</option>
           </select>
         </label>
+
+        <label class="control">
+          <span>小物ありなし</span>
+          <select id="props-mode-select">
+            <option value="none" selected>なし</option>
+            <option value="with">あり</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="presets" aria-label="NG条件プリセット">
+        <div class="panel-header section-header">
+          <div>
+            <h2>NG条件プリセット</h2>
+            <p class="section-note">
+              出力に必ず入れたい禁止条件をチェックすると、英語と日本語の両方へ反映します。
+            </p>
+          </div>
+        </div>
+        <div class="preset-grid">
+          <label class="preset-option">
+            <input type="checkbox" value="no-people" />
+            <span>人物や手を入れない</span>
+          </label>
+          <label class="preset-option">
+            <input type="checkbox" value="preserve-print" />
+            <span>柄・文字・ロゴを崩さない</span>
+          </label>
+          <label class="preset-option">
+            <input type="checkbox" value="no-extra-objects" />
+            <span>余計な物を増やさない</span>
+          </label>
+          <label class="preset-option">
+            <input type="checkbox" value="clean-background" />
+            <span>背景を主張させすぎない</span>
+          </label>
+          <label class="preset-option">
+            <input type="checkbox" value="realistic-materials" />
+            <span>素材感を不自然に変えない</span>
+          </label>
+          <label class="preset-option">
+            <input type="checkbox" value="no-harsh-effects" />
+            <span>過度な反射や演出を避ける</span>
+          </label>
+        </div>
       </section>
 
       <section class="panel">
@@ -149,9 +194,13 @@
             <button id="angle-variant-button" type="button" class="secondary">
               構図違い
             </button>
+            <button id="favorite-button" type="button" class="secondary">
+              お気に入り保存
+            </button>
             <button id="copy-button" type="button" class="secondary">コピー</button>
           </div>
         </div>
+        <p id="save-feedback" class="section-note status-text" aria-live="polite"></p>
 
         <div class="editor-header">
           <p class="output-label">英語プロンプト</p>
@@ -239,6 +288,30 @@
             <dd id="meta-props">-</dd>
           </div>
         </dl>
+      </section>
+
+      <section class="saved-panels">
+        <section class="saved-panel">
+          <div class="panel-header section-header">
+            <div>
+              <h2>お気に入り</h2>
+              <p class="section-note">残しておきたい案を保存します。</p>
+            </div>
+          </div>
+          <div id="favorites-empty" class="saved-empty">まだ保存されていません。</div>
+          <div id="favorites-list" class="saved-list"></div>
+        </section>
+
+        <section class="saved-panel">
+          <div class="panel-header section-header">
+            <div>
+              <h2>履歴</h2>
+              <p class="section-note">直近で生成した案をあとから復元できます。</p>
+            </div>
+          </div>
+          <div id="history-empty" class="saved-empty">まだ履歴がありません。</div>
+          <div id="history-list" class="saved-list"></div>
+        </section>
       </section>
 
       <section class="tips">
