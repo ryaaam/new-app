@@ -356,7 +356,7 @@ button.secondary {
 .saved-panels {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .saved-list {
@@ -402,6 +402,12 @@ button.secondary {
   margin: 12px 0 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.saved-card-meta {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .saved-card-actions {

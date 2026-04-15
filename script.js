@@ -9,6 +9,7 @@ const propsModeSelect = document.getElementById("props-mode-select");
 const themeToggleButton = document.getElementById("theme-toggle-button");
 const generateButton = document.getElementById("generate-button");
 const angleVariantButton = document.getElementById("angle-variant-button");
+const saveSceneButton = document.getElementById("save-scene-button");
 const favoriteButton = document.getElementById("favorite-button");
 const copyButton = document.getElementById("copy-button");
 const promptOutput = document.getElementById("prompt-output");
@@ -25,8 +26,11 @@ const ngPresetInputs = Array.from(
 const saveFeedback = document.getElementById("save-feedback");
 const favoritesList = document.getElementById("favorites-list");
 const historyList = document.getElementById("history-list");
+const customScenesList = document.getElementById("custom-scenes-list");
 const favoritesEmpty = document.getElementById("favorites-empty");
 const historyEmpty = document.getElementById("history-empty");
+const customScenesEmpty = document.getElementById("custom-scenes-empty");
+const customScenesCount = document.getElementById("custom-scenes-count");
 
 const metaCategory = document.getElementById("meta-category");
 const metaCaseCount = document.getElementById("meta-case-count");
@@ -42,11 +46,13 @@ let currentPromptState = null;
 const themeStorageKey = "prompt-generator-theme";
 const historyStorageKey = "prompt-generator-history";
 const favoritesStorageKey = "prompt-generator-favorites";
+const customSceneStorageKey = "prompt-generator-custom-scenes";
 const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
 const maxHistoryEntries = 12;
 const maxFavoriteEntries = 20;
 let promptHistory = [];
 let favoritePrompts = [];
+let customScenarios = [];
 
 function readStoredTheme() {
   try {
@@ -706,7 +712,7 @@ const characterThemes = {
   },
 };
 
-const scenarios = [
+const baseScenarios = [
   {
     location: "a bright wooden desk near a window in a home office",
     light: "soft morning natural light",
@@ -2071,9 +2077,436 @@ const scenarios = [
     mood: "dreamy, niche, grounded",
     moodJa: "少し夢があり、ニッチだが、地に足がついている",
   },
+  {
+    location: "a simple white desk in a bright room",
+    locationJa: "明るい部屋にあるシンプルな白いデスク",
+    light: "soft natural daylight",
+    lightJa: "やわらかな自然光",
+    angle: "clean product shot from slightly above",
+    angleJa: "やや上からのクリーンな商品カット",
+    props: ["a notebook", "a glass of water", "a pen", "a folded cloth"],
+    propsJa: ["ノート", "グラスの水", "ペン", "折りたたんだ布"],
+    mood: "clean, simple, bright",
+    moodJa: "クリーンで、シンプルで、明るい",
+  },
+  {
+    location: "a wooden dining table by a window",
+    locationJa: "窓際にある木製ダイニングテーブル",
+    light: "gentle window light",
+    lightJa: "穏やかな窓光",
+    angle: "natural tabletop shot",
+    angleJa: "自然なテーブルトップカット",
+    props: ["a mug", "a small plate", "a napkin", "a slim book"],
+    propsJa: ["マグ", "小皿", "ナプキン", "薄い本"],
+    mood: "natural, everyday, calm",
+    moodJa: "自然で、日常的で、落ち着いている",
+  },
+  {
+    location: "a neat office desk with minimal stationery",
+    locationJa: "最小限の文具がある整ったオフィスデスク",
+    light: "bright indoor daylight",
+    lightJa: "明るい室内の自然光",
+    angle: "front-side product shot",
+    angleJa: "前方寄りの商品カット",
+    props: ["a memo pad", "a pen", "a keyboard edge", "a coffee cup"],
+    propsJa: ["メモパッド", "ペン", "キーボードの端", "コーヒーカップ"],
+    mood: "tidy, practical, modern",
+    moodJa: "整っていて、実用的で、モダン",
+  },
+  {
+    location: "a plain cafe counter with a clean surface",
+    locationJa: "すっきりした天板のシンプルなカフェカウンター",
+    light: "soft cafe daylight",
+    lightJa: "やわらかなカフェの自然光",
+    angle: "casual product shot",
+    angleJa: "カジュアルな商品カット",
+    props: ["a coffee cup", "a menu card", "a napkin", "a small tray"],
+    propsJa: ["コーヒーカップ", "メニューカード", "ナプキン", "小さなトレー"],
+    mood: "casual, clean, friendly",
+    moodJa: "カジュアルで、クリーンで、親しみやすい",
+  },
+  {
+    location: "a hotel room side table with neutral decor",
+    locationJa: "ニュートラルな内装のホテル客室サイドテーブル",
+    light: "soft room light",
+    lightJa: "やわらかな客室光",
+    angle: "calm close product shot",
+    angleJa: "落ち着いた近距離商品カット",
+    props: ["a room card", "a brochure", "a glass bottle", "a folded fabric"],
+    propsJa: ["ルームカード", "案内パンフレット", "ガラスボトル", "折りたたんだ布"],
+    mood: "quiet, clean, premium",
+    moodJa: "静かで、クリーンで、上質",
+  },
+  {
+    location: "a simple park bench on a clear day",
+    locationJa: "晴れた日にあるシンプルな公園のベンチ",
+    light: "clear outdoor daylight",
+    lightJa: "澄んだ屋外の自然光",
+    angle: "light outdoor product shot",
+    angleJa: "軽やかな屋外商品カット",
+    props: ["a tote bag", "a water bottle", "a book", "a cap"],
+    propsJa: ["トートバッグ", "ウォーターボトル", "本", "キャップ"],
+    mood: "fresh, open, casual",
+    moodJa: "爽やかで、開放感があり、カジュアル",
+  },
+  {
+    location: "a kitchen table with a clean white surface",
+    locationJa: "清潔な白い天板のキッチンテーブル",
+    light: "soft morning light",
+    lightJa: "やわらかな朝の光",
+    angle: "simple overhead product shot",
+    angleJa: "シンプルな真上からの商品カット",
+    props: ["a glass", "a linen cloth", "a spoon", "a small bowl"],
+    propsJa: ["グラス", "リネンクロス", "スプーン", "小鉢"],
+    mood: "fresh, simple, homey",
+    moodJa: "フレッシュで、シンプルで、家庭的",
+  },
+  {
+    location: "a bookstore counter with a quiet atmosphere",
+    locationJa: "静かな空気がある書店のカウンター",
+    light: "soft indoor light",
+    lightJa: "やわらかな室内光",
+    angle: "editorial tabletop shot",
+    angleJa: "エディトリアル調のテーブルトップカット",
+    props: ["a book", "a bookmark", "a receipt", "a pen"],
+    propsJa: ["本", "しおり", "レシート", "ペン"],
+    mood: "quiet, thoughtful, neat",
+    moodJa: "静かで、思慮深く、整っている",
+  },
+  {
+    location: "a balcony table with open sky in the background",
+    locationJa: "背景に空が広がるバルコニーテーブル",
+    light: "bright open daylight",
+    lightJa: "明るく開放的な自然光",
+    angle: "airy lifestyle product shot",
+    angleJa: "軽やかなライフスタイル商品カット",
+    props: ["a drink glass", "a folded newspaper", "a plate", "a cloth"],
+    propsJa: ["ドリンクグラス", "折りたたんだ新聞", "皿", "クロス"],
+    mood: "airy, light, relaxed",
+    moodJa: "軽やかで、明るく、リラックスしている",
+  },
+  {
+    location: "a studio table with a plain paper backdrop",
+    locationJa: "無地のペーパー背景を使ったスタジオテーブル",
+    light: "controlled studio light",
+    lightJa: "コントロールされたスタジオ光",
+    angle: "simple commercial product shot",
+    angleJa: "シンプルな商用商品カット",
+    props: ["an acrylic block", "a paper card", "a small object", "a shadow board"],
+    propsJa: ["アクリルブロック", "ペーパーカード", "小さなオブジェ", "シャドーボード"],
+    mood: "clean, direct, commercial",
+    moodJa: "クリーンで、直線的で、商用感がある",
+  },
 ];
 
-const anglePool = [...new Set(scenarios.map((scenario) => scenario.angle))];
+const generatedSceneBases = [
+  {
+    spotEn: "desk",
+    spotJa: "デスク",
+    categories: ["indoor", "daily", "work"],
+  },
+  {
+    spotEn: "table",
+    spotJa: "テーブル",
+    categories: ["indoor", "daily"],
+  },
+  {
+    spotEn: "cafe table",
+    spotJa: "カフェテーブル",
+    categories: ["cafe", "indoor", "daily"],
+  },
+  {
+    spotEn: "counter",
+    spotJa: "カウンター",
+    categories: ["indoor", "urban"],
+  },
+  {
+    spotEn: "side table",
+    spotJa: "サイドテーブル",
+    categories: ["indoor", "luxury"],
+  },
+  {
+    spotEn: "bench",
+    spotJa: "ベンチ",
+    categories: ["outdoor", "daily"],
+  },
+  {
+    spotEn: "balcony table",
+    spotJa: "バルコニーテーブル",
+    categories: ["daily", "outdoor", "travel"],
+  },
+  {
+    spotEn: "studio table",
+    spotJa: "スタジオテーブル",
+    categories: ["indoor", "work"],
+  },
+  {
+    spotEn: "window seat table",
+    spotJa: "窓際テーブル",
+    categories: ["indoor", "travel"],
+  },
+  {
+    spotEn: "shelf table",
+    spotJa: "シェルフテーブル",
+    categories: ["indoor", "daily"],
+  },
+  {
+    spotEn: "work table",
+    spotJa: "作業テーブル",
+    categories: ["indoor", "work"],
+  },
+  {
+    spotEn: "breakfast table",
+    spotJa: "朝食テーブル",
+    categories: ["daily", "indoor"],
+  },
+  {
+    spotEn: "lounge table",
+    spotJa: "ラウンジテーブル",
+    categories: ["indoor", "luxury", "travel"],
+  },
+  {
+    spotEn: "garden table",
+    spotJa: "ガーデンテーブル",
+    categories: ["outdoor", "nature", "daily"],
+  },
+  {
+    spotEn: "patio table",
+    spotJa: "パティオテーブル",
+    categories: ["outdoor", "travel", "daily"],
+  },
+  {
+    spotEn: "display table",
+    spotJa: "ディスプレイテーブル",
+    categories: ["indoor", "work", "urban"],
+  },
+  {
+    spotEn: "reading table",
+    spotJa: "読書テーブル",
+    categories: ["indoor", "daily"],
+  },
+  {
+    spotEn: "kitchen counter",
+    spotJa: "キッチンカウンター",
+    categories: ["indoor", "daily"],
+  },
+  {
+    spotEn: "window counter",
+    spotJa: "窓際カウンター",
+    categories: ["indoor", "urban", "travel"],
+  },
+  {
+    spotEn: "terrace table",
+    spotJa: "テラステーブル",
+    categories: ["outdoor", "travel", "cafe"],
+  },
+];
+
+const generatedSceneSurfaces = [
+  { en: "white", ja: "白い" },
+  { en: "wooden", ja: "木製の" },
+  { en: "light beige", ja: "ライトベージュの" },
+  { en: "stone-top", ja: "石天板の" },
+  { en: "glass-top", ja: "ガラス天板の" },
+  { en: "linen-covered", ja: "リネンクロスを敷いた" },
+  { en: "compact", ja: "コンパクトな" },
+  { en: "neat", ja: "整った" },
+  { en: "plain", ja: "無地の" },
+  { en: "minimal", ja: "ミニマルな" },
+  { en: "soft gray", ja: "ソフトグレーの" },
+  { en: "warm beige", ja: "ウォームベージュの" },
+  { en: "matte black", ja: "マットブラックの" },
+  { en: "cream-colored", ja: "クリーム色の" },
+  { en: "oak", ja: "オーク材の" },
+  { en: "clean-lined", ja: "直線的な" },
+  { en: "smooth-top", ja: "なめらかな天板の" },
+  { en: "soft-toned", ja: "やわらかな色味の" },
+  { en: "light wood", ja: "ライトウッドの" },
+  { en: "calm-toned", ja: "落ち着いた色味の" },
+];
+
+const generatedSceneBackdrops = [
+  { en: "near a window", ja: "窓際にある" },
+  { en: "by a plain wall", ja: "無地の壁際にある" },
+  { en: "in a bright room", ja: "明るい部屋にある" },
+  { en: "with neutral decor", ja: "ニュートラルな内装の中にある" },
+  { en: "with soft greenery nearby", ja: "近くにやわらかなグリーンがある" },
+  { en: "with open space around it", ja: "周囲に余白がある" },
+  { en: "in a quiet corner", ja: "静かな一角にある" },
+  { en: "with a simple background", ja: "シンプルな背景の前にある" },
+  { en: "by a shelf", ja: "棚のそばにある" },
+  { en: "with a calm city view", ja: "落ち着いた街並みを背景にした" },
+  { en: "beside a soft curtain", ja: "やわらかなカーテンのそばにある" },
+  { en: "with open sky nearby", ja: "近くに空の抜けがある" },
+  { en: "with gentle shadows around it", ja: "周囲にやわらかな影がある" },
+  { en: "in a tidy space", ja: "整った空間にある" },
+  { en: "with natural depth behind it", ja: "奥に自然な奥行きがある" },
+  { en: "with soft morning air", ja: "朝のやわらかな空気感がある" },
+  { en: "with subtle indoor greenery", ja: "控えめな室内グリーンがある" },
+  { en: "in a calm private room", ja: "落ち着いた個室空間にある" },
+  { en: "with a bright backdrop", ja: "明るい背景を背にした" },
+  { en: "beside a clean wall", ja: "クリーンな壁のそばにある" },
+];
+
+const generatedLightPresets = [
+  { en: "soft natural daylight", ja: "やわらかな自然光" },
+  { en: "gentle window light", ja: "穏やかな窓光" },
+  { en: "bright indoor daylight", ja: "明るい室内の自然光" },
+  { en: "clear morning light", ja: "澄んだ朝の光" },
+  { en: "soft afternoon light", ja: "やわらかな午後の光" },
+  { en: "clean daylight", ja: "クリーンな自然光" },
+  { en: "soft side light", ja: "やわらかなサイド光" },
+  { en: "bright window daylight", ja: "明るい窓辺の自然光" },
+  { en: "light ambient daylight", ja: "軽やかな環境光" },
+  { en: "calm indoor daylight", ja: "落ち着いた室内自然光" },
+];
+
+const generatedAnglePresets = [
+  { en: "clean product shot from slightly above", ja: "やや上からのクリーンな商品カット" },
+  { en: "natural tabletop shot", ja: "自然なテーブルトップカット" },
+  { en: "simple overhead product shot", ja: "シンプルな真上からの商品カット" },
+  { en: "front-side product shot", ja: "前方寄りの商品カット" },
+  { en: "casual product shot", ja: "カジュアルな商品カット" },
+  { en: "simple close product shot", ja: "シンプルな近距離商品カット" },
+  { en: "balanced tabletop product shot", ja: "バランスのよいテーブルトップ商品カット" },
+  { en: "light lifestyle product shot", ja: "軽やかなライフスタイル商品カット" },
+  { en: "straightforward product shot", ja: "素直な商品カット" },
+  { en: "soft overhead tabletop shot", ja: "やわらかな俯瞰テーブルトップカット" },
+];
+
+const generatedMoodPresets = [
+  { en: "clean, simple, bright", ja: "クリーンで、シンプルで、明るい" },
+  { en: "natural, calm, everyday", ja: "自然で、落ち着いていて、日常的" },
+  { en: "tidy, practical, modern", ja: "整っていて、実用的で、モダン" },
+  { en: "quiet, neat, friendly", ja: "静かで、整っていて、親しみやすい" },
+  { en: "light, relaxed, clean", ja: "軽やかで、リラックスしていて、クリーン" },
+  { en: "simple, calm, modern", ja: "シンプルで、落ち着いていて、モダン" },
+  { en: "bright, tidy, natural", ja: "明るく、整っていて、自然" },
+  { en: "soft, clean, casual", ja: "やわらかく、クリーンで、カジュアル" },
+  { en: "minimal, quiet, polished", ja: "ミニマルで、静かで、整っている" },
+  { en: "fresh, simple, friendly", ja: "フレッシュで、シンプルで、親しみやすい" },
+];
+
+const generatedPropsPresets = [
+  {
+    en: ["a notebook", "a pen", "a glass of water", "a folded cloth"],
+    ja: ["ノート", "ペン", "グラスの水", "折りたたんだ布"],
+  },
+  {
+    en: ["a mug", "a small plate", "a napkin", "a slim book"],
+    ja: ["マグ", "小皿", "ナプキン", "薄い本"],
+  },
+  {
+    en: ["a memo pad", "a pen", "a keyboard edge", "a coffee cup"],
+    ja: ["メモパッド", "ペン", "キーボードの端", "コーヒーカップ"],
+  },
+  {
+    en: ["a glass bottle", "a brochure", "a card", "a folded fabric"],
+    ja: ["ガラスボトル", "パンフレット", "カード", "折りたたんだ布"],
+  },
+  {
+    en: ["a tote bag", "a water bottle", "a book", "a cap"],
+    ja: ["トートバッグ", "ウォーターボトル", "本", "キャップ"],
+  },
+  {
+    en: ["a spoon", "a small bowl", "a glass", "a linen cloth"],
+    ja: ["スプーン", "小鉢", "グラス", "リネンクロス"],
+  },
+  {
+    en: ["a menu card", "a tray", "a cup", "a napkin"],
+    ja: ["メニューカード", "トレー", "カップ", "ナプキン"],
+  },
+  {
+    en: ["an acrylic block", "a paper card", "a small object", "a shadow board"],
+    ja: ["アクリルブロック", "ペーパーカード", "小さなオブジェ", "シャドーボード"],
+  },
+  {
+    en: ["a bookmark", "a receipt", "a pen", "a book"],
+    ja: ["しおり", "レシート", "ペン", "本"],
+  },
+  {
+    en: ["a drink glass", "a plate", "a cloth", "a folded paper"],
+    ja: ["ドリンクグラス", "皿", "クロス", "折りたたんだ紙"],
+  },
+  {
+    en: ["a tray", "a card", "a cup", "a notebook"],
+    ja: ["トレー", "カード", "カップ", "ノート"],
+  },
+  {
+    en: ["a small vase", "a book", "a glass", "a pen"],
+    ja: ["小さな花瓶", "本", "グラス", "ペン"],
+  },
+  {
+    en: ["a folded towel", "a bottle", "a brochure", "a dish"],
+    ja: ["折りたたんだタオル", "ボトル", "パンフレット", "小皿"],
+  },
+  {
+    en: ["a menu card", "a spoon", "a cup", "a cloth"],
+    ja: ["メニューカード", "スプーン", "カップ", "クロス"],
+  },
+  {
+    en: ["a slim magazine", "a mug", "a note card", "a pen"],
+    ja: ["薄い雑誌", "マグ", "メモカード", "ペン"],
+  },
+  {
+    en: ["a coaster", "a bottle", "a folded paper", "a tray"],
+    ja: ["コースター", "ボトル", "折りたたんだ紙", "トレー"],
+  },
+  {
+    en: ["a cloth", "a small plate", "a glass", "a card"],
+    ja: ["クロス", "小皿", "グラス", "カード"],
+  },
+  {
+    en: ["a paperback", "a bookmark", "a cup", "a receipt"],
+    ja: ["文庫本", "しおり", "カップ", "レシート"],
+  },
+  {
+    en: ["a compact tray", "a note", "a mug", "a folded cloth"],
+    ja: ["コンパクトなトレー", "メモ", "マグ", "折りたたんだ布"],
+  },
+  {
+    en: ["a small bowl", "a spoon", "a glass bottle", "a napkin"],
+    ja: ["小鉢", "スプーン", "ガラスボトル", "ナプキン"],
+  },
+];
+
+function createGeneratedScenarios(limit = 20000) {
+  const scenarios = [];
+
+  for (const base of generatedSceneBases) {
+    for (const surface of generatedSceneSurfaces) {
+      for (const backdrop of generatedSceneBackdrops) {
+        const index = scenarios.length;
+        const light = generatedLightPresets[index % generatedLightPresets.length];
+        const angle = generatedAnglePresets[index % generatedAnglePresets.length];
+        const mood = generatedMoodPresets[index % generatedMoodPresets.length];
+        const props = generatedPropsPresets[index % generatedPropsPresets.length];
+
+        scenarios.push({
+          location: `a ${surface.en} ${base.spotEn} ${backdrop.en}`,
+          locationJa: `${backdrop.ja}${surface.ja}${base.spotJa}`,
+          light: light.en,
+          lightJa: light.ja,
+          angle: angle.en,
+          angleJa: angle.ja,
+          props: props.en,
+          propsJa: props.ja,
+          mood: mood.en,
+          moodJa: mood.ja,
+          categories: base.categories,
+        });
+
+        if (scenarios.length >= limit) {
+          return scenarios;
+        }
+      }
+    }
+  }
+
+  return scenarios;
+}
+
+const generatedScenarios = createGeneratedScenarios(20000);
 
 const detailOptions = [
   "high detail product texture",
@@ -2327,7 +2760,23 @@ function sample(array, count = 1) {
   return shuffled.slice(0, count);
 }
 
+function uniqueStrings(items) {
+  return [...new Set(items.filter(Boolean))];
+}
+
+function getAllScenarios() {
+  return [...baseScenarios, ...generatedScenarios, ...customScenarios];
+}
+
+function getAnglePool() {
+  return [...new Set(getAllScenarios().map((scenario) => scenario.angle).filter(Boolean))];
+}
+
 function getScenarioCategories(scenario) {
+  if (Array.isArray(scenario.categories) && scenario.categories.length > 0) {
+    return scenario.categories;
+  }
+
   const haystack = [
     scenario.location,
     scenario.light,
@@ -2343,6 +2792,7 @@ function getScenarioCategories(scenario) {
 }
 
 function getFilteredScenarios() {
+  const scenarios = getAllScenarios();
   if (categorySelect.value === "all") {
     return scenarios;
   }
@@ -2483,6 +2933,13 @@ function formatSavedDate(isoString) {
   }).format(date);
 }
 
+function formatCategoryNames(categories) {
+  return (categories || [])
+    .map((category) => categoryLabels[category] || category)
+    .filter(Boolean)
+    .join(", ");
+}
+
 function renderSavedCards(container, emptyNode, items, type) {
   if (!container || !emptyNode) {
     return;
@@ -2510,14 +2967,44 @@ function renderSavedCards(container, emptyNode, items, type) {
     .join("");
 }
 
+function renderCustomScenes() {
+  if (!customScenesList || !customScenesEmpty || !customScenesCount) {
+    return;
+  }
+
+  customScenesEmpty.hidden = customScenarios.length > 0;
+  customScenesCount.textContent = `${customScenarios.length}件`;
+  customScenesList.innerHTML = customScenarios
+    .map(
+      (item) => `
+        <article class="saved-card">
+          <div class="saved-card-header">
+            <div>
+              <h3>${escapeHtml(item.locationJa || item.location || "追加シーン")}</h3>
+              <time datetime="${escapeHtml(item.savedAt || "")}">${escapeHtml(formatSavedDate(item.savedAt))}</time>
+            </div>
+            <div class="saved-card-actions">
+              <button type="button" class="secondary" data-action="delete-custom-scene" data-id="${escapeHtml(item.id)}">削除</button>
+            </div>
+          </div>
+          <p>${escapeHtml(item.lightJa || "")}</p>
+          <div class="saved-card-meta">${escapeHtml(formatCategoryNames(item.categories) || "カテゴリ未指定")}</div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
 function renderSavedPanels() {
   renderSavedCards(favoritesList, favoritesEmpty, favoritePrompts, "favorite");
   renderSavedCards(historyList, historyEmpty, promptHistory, "history");
+  renderCustomScenes();
 }
 
 function loadSavedData() {
   promptHistory = readJsonStorage(historyStorageKey, []);
   favoritePrompts = readJsonStorage(favoritesStorageKey, []);
+  customScenarios = readJsonStorage(customSceneStorageKey, []);
   renderSavedPanels();
 }
 
@@ -2528,6 +3015,11 @@ function persistHistory() {
 
 function persistFavorites() {
   writeJsonStorage(favoritesStorageKey, favoritePrompts);
+  renderSavedPanels();
+}
+
+function persistCustomScenarios() {
+  writeJsonStorage(customSceneStorageKey, customScenarios);
   renderSavedPanels();
 }
 
@@ -2564,6 +3056,81 @@ function saveCurrentToFavorites() {
   setFeedback("お気に入りに保存しました。");
 }
 
+function splitListText(text) {
+  return text
+    .split(/[、,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function createCustomScenarioFromCurrentState() {
+  if (!currentPromptState) {
+    return null;
+  }
+
+  const edited = getEditedFields();
+  const sceneJa = edited.scene || currentPromptState.originalSceneJa;
+  const lightJa = edited.light || currentPromptState.originalLightJa;
+  const angleJa = edited.angle || currentPromptState.originalAngleJa;
+  const propsJaText = edited.props || currentPromptState.originalPropsJa;
+  const moodJa = edited.mood || currentPromptState.originalMoodJa;
+
+  if (!sceneJa || !lightJa || !angleJa) {
+    return null;
+  }
+
+  const categories =
+    categorySelect.value === "all"
+      ? [...(currentPromptState.categories || [])]
+      : [categorySelect.value];
+
+  const sceneEn = translateEditedJapaneseToEnglish("scene", sceneJa, currentPromptState);
+  const lightEn = translateEditedJapaneseToEnglish("light", lightJa, currentPromptState);
+  const angleEn = translateEditedJapaneseToEnglish("angle", angleJa, currentPromptState);
+  const propsEn = translateEditedJapaneseToEnglish("props", propsJaText, currentPromptState);
+  const moodEn = translateEditedJapaneseToEnglish("mood", moodJa, currentPromptState);
+
+  return {
+    id: createRecordId(),
+    savedAt: new Date().toISOString(),
+    location: sceneEn,
+    locationJa: sceneJa,
+    light: lightEn,
+    lightJa,
+    angle: angleEn,
+    angleJa,
+    props: splitListText(propsEn),
+    propsJa: splitListText(propsJaText),
+    mood: moodEn,
+    moodJa,
+    categories,
+  };
+}
+
+function saveCurrentAsCustomScenario() {
+  const scenario = createCustomScenarioFromCurrentState();
+  if (!scenario) {
+    setFeedback("追加できるシーン情報が不足しています。");
+    return;
+  }
+
+  const exists = customScenarios.some(
+    (item) =>
+      normalizeText(item.locationJa || "") === normalizeText(scenario.locationJa || "") &&
+      normalizeText(item.lightJa || "") === normalizeText(scenario.lightJa || "") &&
+      normalizeText(item.angleJa || "") === normalizeText(scenario.angleJa || ""),
+  );
+
+  if (exists) {
+    setFeedback("同じシーン候補はすでに追加されています。");
+    return;
+  }
+
+  customScenarios = [scenario, ...customScenarios];
+  persistCustomScenarios();
+  setFeedback("シーン候補に追加しました。");
+}
+
 function deleteSavedItem(kind, id) {
   if (kind === "favorite") {
     favoritePrompts = favoritePrompts.filter((item) => item.id !== id);
@@ -2573,6 +3140,11 @@ function deleteSavedItem(kind, id) {
 
   promptHistory = promptHistory.filter((item) => item.id !== id);
   persistHistory();
+}
+
+function deleteCustomScene(id) {
+  customScenarios = customScenarios.filter((item) => item.id !== id);
+  persistCustomScenarios();
 }
 
 function applySnapshot(snapshot) {
@@ -2642,6 +3214,16 @@ function handleSavedListClick(event) {
   }
 }
 
+function handleCustomSceneListClick(event) {
+  const button = event.target.closest("button[data-action]");
+  if (!button || button.dataset.action !== "delete-custom-scene" || !button.dataset.id) {
+    return;
+  }
+
+  deleteCustomScene(button.dataset.id);
+  setFeedback("追加シーンを削除しました。");
+}
+
 function generatePrompt() {
   setFeedback("");
   const selectedStyle = styles[styleSelect.value];
@@ -2649,7 +3231,9 @@ function generatePrompt() {
   const caseCount = Number(caseCountSelect.value);
   const selectedLayout = layoutModes[layoutSelect.value];
   const availableScenarios = getFilteredScenarios();
-  const scenario = sample(availableScenarios.length > 0 ? availableScenarios : scenarios)[0];
+  const scenario = sample(
+    availableScenarios.length > 0 ? availableScenarios : getAllScenarios(),
+  )[0];
   const selectedCharacter = characterThemes[characterSelect.value] || characterThemes.none;
   const propsMode = propsModeSelect.value || "none";
   const baseProps =
@@ -2740,6 +3324,7 @@ function generatePrompt() {
     originalDetailsEn: detailTextsEn.join(", "),
     toneEn: selectedStyle.tone,
     focusEn: focus,
+    categories: scenarioCategories,
   };
 
   fillJapaneseEditors(currentPromptState);
@@ -2849,7 +3434,7 @@ function createAngleVariant() {
   setFeedback("");
 
   const nextAngleEn = sample(
-    anglePool.filter((angle) => angle !== currentPromptState.originalAngleEn),
+    getAnglePool().filter((angle) => angle !== currentPromptState.originalAngleEn),
   )[0];
 
   if (!nextAngleEn) {
@@ -3546,6 +4131,9 @@ async function copyPrompt() {
 
 generateButton.addEventListener("click", generatePrompt);
 angleVariantButton.addEventListener("click", createAngleVariant);
+if (saveSceneButton) {
+  saveSceneButton.addEventListener("click", saveCurrentAsCustomScenario);
+}
 if (favoriteButton) {
   favoriteButton.addEventListener("click", saveCurrentToFavorites);
 }
@@ -3558,6 +4146,9 @@ if (favoritesList) {
 }
 if (historyList) {
   historyList.addEventListener("click", handleSavedListClick);
+}
+if (customScenesList) {
+  customScenesList.addEventListener("click", handleCustomSceneListClick);
 }
 ngPresetInputs.forEach((input) => {
   input.addEventListener("input", syncPromptFromJapaneseEditors);
