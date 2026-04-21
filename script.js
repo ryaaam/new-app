@@ -2300,6 +2300,112 @@ const generatedSceneBases = [
     spotJa: "テラステーブル",
     categories: ["outdoor", "travel", "cafe"],
   },
+  {
+    spotEn: "stone ledge",
+    spotJa: "ストーンレッジ",
+    categories: ["outdoor", "nature", "urban"],
+  },
+  {
+    spotEn: "windowsill",
+    spotJa: "窓辺",
+    categories: ["indoor", "daily", "travel"],
+  },
+  {
+    spotEn: "display plinth",
+    spotJa: "ディスプレイ台",
+    categories: ["indoor", "work", "urban"],
+  },
+  {
+    spotEn: "cabinet top",
+    spotJa: "キャビネット上",
+    categories: ["indoor", "daily", "luxury"],
+  },
+  {
+    spotEn: "tray stand",
+    spotJa: "トレイスタンド",
+    categories: ["indoor", "daily", "travel"],
+  },
+  {
+    spotEn: "porch railing",
+    spotJa: "ポーチの手すり",
+    categories: ["outdoor", "travel", "nature"],
+  },
+  {
+    spotEn: "display shelf",
+    spotJa: "ディスプレイシェルフ",
+    categories: ["indoor", "urban", "work"],
+  },
+  {
+    spotEn: "window ledge",
+    spotJa: "窓辺のレッジ",
+    categories: ["indoor", "daily", "urban"],
+  },
+];
+
+const generatedOpenSceneBases = [
+  {
+    spotEn: "beach sand",
+    spotJa: "砂浜",
+    categories: ["outdoor", "nature", "travel", "summer"],
+  },
+  {
+    spotEn: "shoreline rocks",
+    spotJa: "波打ち際の岩場",
+    categories: ["outdoor", "nature", "travel"],
+  },
+  {
+    spotEn: "grassy lawn",
+    spotJa: "芝生",
+    categories: ["outdoor", "nature", "daily"],
+  },
+  {
+    spotEn: "wildflower meadow",
+    spotJa: "草花のある野原",
+    categories: ["outdoor", "nature", "seasonal"],
+  },
+  {
+    spotEn: "sandy dune slope",
+    spotJa: "砂丘の斜面",
+    categories: ["outdoor", "nature", "travel", "summer"],
+  },
+  {
+    spotEn: "pebbled lakeshore",
+    spotJa: "小石のある湖畔",
+    categories: ["outdoor", "nature", "travel"],
+  },
+  {
+    spotEn: "forest moss patch",
+    spotJa: "森の苔地",
+    categories: ["outdoor", "nature"],
+  },
+  {
+    spotEn: "sun-warmed boardwalk planks",
+    spotJa: "陽だまりのボードウォーク",
+    categories: ["outdoor", "travel", "urban"],
+  },
+];
+
+const generatedColorPaperSceneBases = [
+  {
+    spotEn: "paper backdrop sweep",
+    spotJa: "背景紙のスイープ面",
+    categories: ["indoor", "work", "urban"],
+  },
+  {
+    spotEn: "color paper background",
+    spotJa: "カラー背景紙",
+    categories: ["indoor", "work"],
+  },
+  {
+    spotEn: "studio paper set",
+    spotJa: "スタジオ背景紙セット",
+    categories: ["indoor", "work", "urban"],
+  },
+  {
+    spotEn: "seamless paper backdrop",
+    spotJa: "シームレス背景紙",
+    categories: ["indoor", "work"],
+  },
 ];
 
 const generatedSceneSurfaces = [
@@ -2325,6 +2431,28 @@ const generatedSceneSurfaces = [
   { en: "calm-toned", ja: "落ち着いた色味の" },
 ];
 
+const generatedOpenSceneModifiers = [
+  { en: "sunlit", ja: "陽光が差す" },
+  { en: "bright", ja: "明るい" },
+  { en: "soft-toned", ja: "やわらかな色味の" },
+  { en: "clean", ja: "整った" },
+  { en: "light-washed", ja: "光に洗われた" },
+  { en: "warm-toned", ja: "あたたかな色味の" },
+  { en: "calm", ja: "穏やかな" },
+  { en: "airy", ja: "抜け感のある" },
+];
+
+const generatedColorPaperModifiers = [
+  { en: "soft pastel", ja: "やわらかなパステル調の" },
+  { en: "light blue", ja: "ライトブルーの" },
+  { en: "warm beige", ja: "ウォームベージュの" },
+  { en: "pale pink", ja: "ペールピンクの" },
+  { en: "mint green", ja: "ミントグリーンの" },
+  { en: "lavender", ja: "ラベンダーの" },
+  { en: "off-white", ja: "オフホワイトの" },
+  { en: "soft gray", ja: "ソフトグレーの" },
+];
+
 const generatedSceneBackdrops = [
   { en: "near a window", ja: "窓際にある" },
   { en: "by a plain wall", ja: "無地の壁際にある" },
@@ -2346,6 +2474,26 @@ const generatedSceneBackdrops = [
   { en: "in a calm private room", ja: "落ち着いた個室空間にある" },
   { en: "with a bright backdrop", ja: "明るい背景を背にした" },
   { en: "beside a clean wall", ja: "クリーンな壁のそばにある" },
+];
+
+const generatedOpenSceneBackdrops = [
+  { en: "with a calm shoreline in the distance", ja: "奥に穏やかな波打ち際が見える" },
+  { en: "with open sky and sea tones around it", ja: "空と海の気配に囲まれた" },
+  { en: "with soft grasses moving in the background", ja: "背景でやわらかな草が揺れる" },
+  { en: "with natural depth and clean outdoor air", ja: "自然な奥行きと澄んだ外気がある" },
+  { en: "with gentle sunlight and a quiet horizon", ja: "やわらかな日差しと静かな地平がある" },
+  { en: "with subtle waves and reflected light nearby", ja: "近くに控えめな波と反射光がある" },
+  { en: "with airy summer light in the background", ja: "背景に夏らしい抜けのある光がある" },
+  { en: "with a clean scenic backdrop", ja: "すっきりした景色を背にした" },
+];
+
+const generatedColorPaperBackdrops = [
+  { en: "with soft shadow falloff", ja: "やわらかな影の落ち方がある" },
+  { en: "with gentle studio depth", ja: "穏やかなスタジオ奥行きがある" },
+  { en: "with minimal tonal contrast", ja: "ミニマルな濃淡で整えた" },
+  { en: "with clean negative space around it", ja: "周囲にきれいな余白がある" },
+  { en: "with subtle curved backdrop depth", ja: "背景紙の緩やかなカーブ感がある" },
+  { en: "with simple editorial styling", ja: "シンプルなエディトリアル感でまとめた" },
 ];
 
 const generatedLightPresets = [
@@ -2485,6 +2633,66 @@ function createGeneratedScenarios(limit = 20000) {
         scenarios.push({
           location: `a ${surface.en} ${base.spotEn} ${backdrop.en}`,
           locationJa: `${backdrop.ja}${surface.ja}${base.spotJa}`,
+          light: light.en,
+          lightJa: light.ja,
+          angle: angle.en,
+          angleJa: angle.ja,
+          props: props.en,
+          propsJa: props.ja,
+          mood: mood.en,
+          moodJa: mood.ja,
+          categories: base.categories,
+        });
+
+        if (scenarios.length >= limit) {
+          return scenarios;
+        }
+      }
+    }
+  }
+
+  for (const base of generatedOpenSceneBases) {
+    for (const modifier of generatedOpenSceneModifiers) {
+      for (const backdrop of generatedOpenSceneBackdrops) {
+        const index = scenarios.length;
+        const light = generatedLightPresets[index % generatedLightPresets.length];
+        const angle = generatedAnglePresets[index % generatedAnglePresets.length];
+        const mood = generatedMoodPresets[index % generatedMoodPresets.length];
+        const props = generatedPropsPresets[index % generatedPropsPresets.length];
+
+        scenarios.push({
+          location: `${modifier.en} ${base.spotEn} ${backdrop.en}`,
+          locationJa: `${backdrop.ja}${modifier.ja}${base.spotJa}`,
+          light: light.en,
+          lightJa: light.ja,
+          angle: angle.en,
+          angleJa: angle.ja,
+          props: props.en,
+          propsJa: props.ja,
+          mood: mood.en,
+          moodJa: mood.ja,
+          categories: base.categories,
+        });
+
+        if (scenarios.length >= limit) {
+          return scenarios;
+        }
+      }
+    }
+  }
+
+  for (const base of generatedColorPaperSceneBases) {
+    for (const modifier of generatedColorPaperModifiers) {
+      for (const backdrop of generatedColorPaperBackdrops) {
+        const index = scenarios.length;
+        const light = generatedLightPresets[index % generatedLightPresets.length];
+        const angle = generatedAnglePresets[index % generatedAnglePresets.length];
+        const mood = generatedMoodPresets[index % generatedMoodPresets.length];
+        const props = generatedPropsPresets[index % generatedPropsPresets.length];
+
+        scenarios.push({
+          location: `${modifier.en} ${base.spotEn} ${backdrop.en}`,
+          locationJa: `${backdrop.ja}${modifier.ja}${base.spotJa}`,
           light: light.en,
           lightJa: light.ja,
           angle: angle.en,
@@ -2814,6 +3022,77 @@ function appendUniqueText(base, addition, separator) {
   return normalizeText(base).includes(normalizeText(addition))
     ? base
     : `${base}${separator}${addition}`;
+}
+
+function randomizeJapaneseSceneEnding(text) {
+  if (!text) {
+    return text;
+  }
+
+  const sceneEndingVariants = ["にする", "に整える", "に仕上げる", "にまとめる"];
+  const matched = text.match(/^(.*?)(にする)$/);
+
+  if (!matched) {
+    return text;
+  }
+
+  return `${matched[1]}${sample(sceneEndingVariants)[0]}`;
+}
+
+function getScenarioSelectionWeight(scenario) {
+  const locationText = normalizeText(
+    [scenario.location, scenario.locationJa].filter(Boolean).join(" "),
+  );
+
+  let weight = 1;
+
+  if (/(^|\s)(table|desk|counter|bench)(\s|$)|テーブル|デスク|カウンター|ベンチ/.test(locationText)) {
+    weight *= 0.32;
+  }
+
+  if (/(^|\s)(side table|window seat table|balcony table|lounge table|patio table)(\s|$)|サイドテーブル|窓際テーブル|バルコニーテーブル|ラウンジテーブル|パティオテーブル/.test(locationText)) {
+    weight *= 0.8;
+  }
+
+  if (/(^|\s)(ledge|windowsill|plinth|cabinet top|tray stand|railing|shelf)(\s|$)|レッジ|窓辺|ディスプレイ台|キャビネット上|トレイスタンド|手すり|シェルフ/.test(locationText)) {
+    weight *= 1.9;
+  }
+
+  if (/(^|\s)(sand|shoreline|rocks|lawn|meadow|dune|lakeshore|moss|boardwalk)(\s|$)|砂浜|波打ち際|岩場|芝生|野原|砂丘|湖畔|苔地|ボードウォーク/.test(locationText)) {
+    weight *= 2.2;
+  }
+
+  if (/(^|\s)(paper backdrop|paper background|studio paper|seamless paper|backdrop sweep)(\s|$)|背景紙|カラー背景紙|スタジオ背景紙|シームレス背景紙|スイープ面/.test(locationText)) {
+    weight *= 1.8;
+  }
+
+  return weight;
+}
+
+function pickScenario(scenarios) {
+  if (!Array.isArray(scenarios) || scenarios.length === 0) {
+    return undefined;
+  }
+
+  const weighted = scenarios.map((scenario) => ({
+    scenario,
+    weight: getScenarioSelectionWeight(scenario),
+  }));
+  const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+
+  if (!(totalWeight > 0)) {
+    return sample(scenarios)[0];
+  }
+
+  let threshold = Math.random() * totalWeight;
+  for (const item of weighted) {
+    threshold -= item.weight;
+    if (threshold <= 0) {
+      return item.scenario;
+    }
+  }
+
+  return weighted[weighted.length - 1].scenario;
 }
 
 function mergeThemeProps(baseProps, themeProps, preferredCount) {
@@ -3231,9 +3510,9 @@ function generatePrompt() {
   const caseCount = Number(caseCountSelect.value);
   const selectedLayout = layoutModes[layoutSelect.value];
   const availableScenarios = getFilteredScenarios();
-  const scenario = sample(
+  const scenario = pickScenario(
     availableScenarios.length > 0 ? availableScenarios : getAllScenarios(),
-  )[0];
+  );
   const selectedCharacter = characterThemes[characterSelect.value] || characterThemes.none;
   const propsMode = propsModeSelect.value || "none";
   const baseProps =
@@ -3261,10 +3540,12 @@ function generatePrompt() {
     categorySelect.value === "all"
       ? scenarioCategories.map((category) => categoryLabels[category]).join(", ") || categoryLabels.all
       : categoryLabels[categorySelect.value];
-  const sceneJa = appendUniqueText(
+  const sceneJa = randomizeJapaneseSceneEnding(
+    appendUniqueText(
     translateLocation(scenario.location, scenario.locationJa),
     selectedCharacter.sceneJa,
     "。",
+    ),
   );
   const sceneEn = appendUniqueText(
     scenario.location,
